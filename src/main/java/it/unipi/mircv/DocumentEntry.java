@@ -2,11 +2,11 @@ package it.unipi.mircv;
 
 public class DocumentEntry {
     private int length;
-    private double PR;
+    private double PageRank;
 
-    public DocumentEntry(int length, double PR) {
+    public DocumentEntry(int length){// , double PageRank) {
         this.length = length;
-        this.PR = PR;
+        this.PageRank = 0;
     }
 
     public int getLength() {
@@ -18,10 +18,16 @@ public class DocumentEntry {
     }
 
     public double getPR() {
-        return PR;
+        return PageRank;
     }
 
-    public void setPR(double PR) {
-        this.PR = PR;
+    public void setPR(double PageRank) {
+        this.PageRank = PageRank;
+    }
+
+    public String toString() {
+        return "[length=" + length +
+                ", PageRank=" + PageRank +
+                "]";
     }
 }

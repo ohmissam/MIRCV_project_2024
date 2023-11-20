@@ -2,19 +2,19 @@ package it.unipi.mircv;
 
 public class LexiconEntry {
 
-    private int termFrequency; // TF
-    private int documentFrequency; // DF
-    private double inverseDocumentFrequency; // IDF
-    //private List<Integer> postingListPointer;
+    private int termFrequency;
+    private int documentFrequency; // num of docs in which the term appears
+    private double inverseDocumentFrequency;
 
-    //costruttore
-    public LexiconEntry(int termFrequency,int documentFrequency, double inverseDocumentFrequency ){
+    public LexiconEntry(int termFrequency,int documentFrequency){
         this.termFrequency = termFrequency;
         this.documentFrequency = documentFrequency;
-        //this.inverseDocumentFrequency = inverseDocumentFrequency;
-        //metodo per inizializzare il pointer alla psotinList?
+        this.inverseDocumentFrequency = 0;
+        //if (termFrequency == 0 && documentFrequency == 0)
+        //    this.inverseDocumentFrequency = 0;
+        //else
+            //alla fine del processing IDF = log(Num tot documenti / num doc in cui è presente il term)
     }
-
 
     public int getTermFrequency() {
         return termFrequency;
@@ -40,20 +40,4 @@ public class LexiconEntry {
         this.inverseDocumentFrequency = inverseDocumentFrequency;
     }
 
-    /*public List<Integer> getPostingListPointers() {
-        return postingListPointer;
-    }
-
-    public void setPostingListPointers(List<Integer> postingListPointer) {
-        this.postingListPointer = postingListPointer;
-    }*/
-
-    @Override
-    public String toString() {
-        return "termFrequency=" + termFrequency +
-                ", documentFrequency=" + documentFrequency +
-                ", inverseDocumentFrequency=" + inverseDocumentFrequency +
-              //  ", postingListPointer=" + postingListPointer +
-                '}';
-    }
 }
