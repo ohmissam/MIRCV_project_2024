@@ -1,4 +1,4 @@
-package it.unipi.mircv;
+package it.unipi.mircv.invertedIndex;
 
 import java.io.*;
 import java.util.*;
