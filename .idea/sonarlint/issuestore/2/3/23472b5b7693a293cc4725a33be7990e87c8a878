@@ -1,0 +1,14 @@
+
+g	java:S101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(¬îß¼üÿÿÿÿ
+W
+java:S1075	"ARefactor your code to get this URI from a customizable parameter.(Åã¡¼
+?
+java:S1481
+")Remove this unused "file" local variable.(•ÜÍ‡
+C
+java:S1481"-Remove this unused "docIndex" local variable.(ÃÓË
+D
+java:S1481".Remove this unused "numOfDocs" local variable.(ßûÓ
+I
+java:S1481".Remove this unused "docLength" local variable.(ÿ´¥ƒşÿÿÿÿ
+S	java:S106"9Replace this use of System.out or System.err by a logger.(‹šïêúÿÿÿÿ
