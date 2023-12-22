@@ -1,4 +1,4 @@
-package it.unipi.dii.aide.mircv;
+package it.unipi.dii.aide.mircv.model;
 
 import java.util.HashMap;
 import java.util.Map;

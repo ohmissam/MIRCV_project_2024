@@ -1,13 +1,15 @@
 package it.unipi.dii.aide.mircv;
 
+import org.example.DAAT;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
+    private static final int DEFAULT_DOC_TO_RETURN=10;
 
-
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
         String[] options;
@@ -49,6 +51,7 @@ public class Main {
                 //DA IMPLEMENTALRE - DEFAULT_DOC_TO_RETURN = 10
                 if(options[1].equals("c")){
                     System.out.println("Implementare conjunctive mode con 10 doc da ritornare");
+                    DAAT.scoreQuery(options[0],true,DEFAULT_DOC_TO_RETURN,options[1]);
                 }
                 else if (options[1].equals("d")){
                     System.out.println("Implementare disjunctive mode con 10 doc da ritornare");

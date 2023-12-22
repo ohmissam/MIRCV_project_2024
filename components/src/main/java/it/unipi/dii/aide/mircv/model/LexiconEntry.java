@@ -1,10 +1,12 @@
-package it.unipi.dii.aide.mircv;
+package it.unipi.dii.aide.mircv.model;
 
 public class LexiconEntry {
 
     private int termFrequency;
     private int documentFrequency; // num of docs in which the term appears
     private double inverseDocumentFrequency;
+
+
 
     public LexiconEntry(int termFrequency,int documentFrequency){
         this.termFrequency = termFrequency;

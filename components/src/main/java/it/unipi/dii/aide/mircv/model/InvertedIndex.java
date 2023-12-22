@@ -1,4 +1,6 @@
-package it.unipi.dii.aide.mircv;
+package it.unipi.dii.aide.mircv.model;
+
+import it.unipi.dii.aide.mircv.model.PostingList;
 
 import java.util.*;
 
@@ -33,6 +35,14 @@ public class InvertedIndex {
     //public boolean containsKey(String term) {
     //    return invertedIndex.containsKey(term);
     //}
+
+    public HashMap<String, PostingList> getInvertedIndex() {
+        return invertedIndex;
+    }
+
+    public void setInvertedIndex(HashMap<String, PostingList> invertedIndex) {
+        this.invertedIndex = invertedIndex;
+    }
 
     public int getPostingListLength(String term){
         PostingList postingList = invertedIndex.get(term);

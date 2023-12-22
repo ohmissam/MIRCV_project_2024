@@ -1,19 +1,29 @@
-package it.unipi.dii.aide.mircv;
+package it.unipi.dii.aide.mircv.preProcessing;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
 
+import it.unipi.dii.aide.mircv.model.InvertedIndex;
+import it.unipi.dii.aide.mircv.model.DocumentIndex;
+import it.unipi.dii.aide.mircv.model.Lexicon;
 import opennlp.tools.stemmer.*;
 
-public class preProcessing {
+public class PreProcessing {
 
     private final static String STOPWORDS_PATH = "data\\stopwords.txt";
     private final static String COLLECTION_PATH = "data\\collection.tsv";
     private static final String LEXICON_FILE_PATH = "data\\Lexicon.txt";
     private static final String DOCINDEX_FILE_PATH = "data\\DocumentIndex.txt";
     private static final String INVINDEX_FILE_PATH = "data\\InvertedIndex.txt";
+    /**
+     * regEx to match strings in camel case
+     */
+    private static final String CAMEL_CASE_MATCHER = "(?<=[a-z])(?=[A-Z])";
 
+    /**
+     * maximum length a term should have
+     */
+    private static final int THRESHOLD = 64;
     public static void main(String[] args) throws IOException {
 
         ArrayList<String> stopWords;
@@ -79,7 +89,7 @@ public class preProcessing {
         }
 
         //save data structure
-        try{
+        /*try{
             BufferedWriter writer = new BufferedWriter(new FileWriter(LEXICON_FILE_PATH));
             writer.write(lexicon.toString());
             writer.close();
@@ -97,7 +107,7 @@ public class preProcessing {
         catch (Exception e) {
             System.out.println("EXC");
             e.printStackTrace();
-        }
+        }*/
 
     }
 
@@ -111,6 +121,23 @@ public class preProcessing {
                 return true;
         }
         return false;
+    }
+
+    public static String[] removeStopwords(String[] tokens) throws IOException {
+        ArrayList<String> stopWords = retrieveStopwords(STOPWORDS_PATH);
+        List<String> tokensList = new ArrayList<>(Arrays.asList(tokens));
+
+        Iterator<String> iterator = tokensList.iterator();
+        while (iterator.hasNext()) {
+            String token = iterator.next();
+            if (stopWords.contains(token)) {
+                iterator.remove();
+            }
+        }
+
+        // Aggiorna l'array originale con i token filtrati
+        tokens = tokensList.toArray(new String[0]);
+        return tokens;
     }
 
     public static ArrayList<String> retrieveStopwords(String stopwordsPath) throws IOException {
@@ -139,5 +166,27 @@ public class preProcessing {
         text = text.replaceAll("[\\s]{2,}", " ");
 
         return text.trim().toLowerCase();
+    }
+
+    public static String[] tokenize(String text) {
+
+        //list of tokens
+        ArrayList<String> tokens = new ArrayList<>();
+
+        //tokenize splitting on whitespaces
+        String[] splittedText = text.split("\s");
+
+        for(String token: splittedText) {
+            //split words who are in CamelCase
+            String[] subtokens = token.split(CAMEL_CASE_MATCHER);
+            for (String subtoken : subtokens) {
+                //if a token has a length over a certain threshold, cut it at the threshold value
+                subtoken = subtoken.substring(0, Math.min(subtoken.length(), THRESHOLD));
+                //return token in lower case
+                tokens.add(subtoken.toLowerCase(Locale.ROOT));
+            }
+        }
+
+        return tokens.toArray(new String[0]);
     }
 }

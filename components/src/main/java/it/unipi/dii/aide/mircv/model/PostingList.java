@@ -1,9 +1,13 @@
-package it.unipi.dii.aide.mircv;
+package it.unipi.dii.aide.mircv.model;
 
 import java.util.*;
 
 public class PostingList {
+    //String->docId
     private HashMap<String, Integer> postingList = new HashMap<>();
+
+
+
 
     public PostingList(String docId, Integer termFrequency) {
         postingList.put(docId, termFrequency);

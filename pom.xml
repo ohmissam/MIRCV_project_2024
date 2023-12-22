@@ -11,6 +11,7 @@
     <modules>
         <module>components</module>
         <module>cli</module>
+        <module>query_execution</module>
     </modules>
 
     <dependencies>

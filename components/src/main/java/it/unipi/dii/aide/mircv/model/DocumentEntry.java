@@ -1,4 +1,4 @@
-package it.unipi.dii.aide.mircv;
+package it.unipi.dii.aide.mircv.model;
 
 public class DocumentEntry {
     private int length;
