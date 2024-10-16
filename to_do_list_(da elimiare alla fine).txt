@@ -1,0 +1,2 @@
+1 - Implementare lo SPIMI  https://nlp.stanford.edu/IR-book/html/htmledition/single-pass-in-memory-indexing-1.html
+    1.1 - Salvare file diversi per docid e per le frequenze
