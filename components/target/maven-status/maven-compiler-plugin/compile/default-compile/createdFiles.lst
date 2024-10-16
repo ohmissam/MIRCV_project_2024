@@ -4,6 +4,8 @@ it\unipi\dii\aide\mircv\model\PostingList.class
 it\unipi\dii\aide\mircv\usoFileChannel.class
 it\unipi\dii\aide\mircv\model\InvertedIndex.class
 it\unipi\dii\aide\mircv\model\Lexicon.class
+it\unipi\dii\aide\mircv\model\processedDocument.class
 it\unipi\dii\aide\mircv\builder\InvertedIndexBuilder.class
 it\unipi\dii\aide\mircv\model\LexiconEntry.class
+it\unipi\dii\aide\mircv\Config.class
 it\unipi\dii\aide\mircv\model\DocumentIndex.class
