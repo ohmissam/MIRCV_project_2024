@@ -6,8 +6,13 @@ public class PostingList {
     //String->docId
     private HashMap<String, Integer> postingList = new HashMap<>();
 
+    public HashMap<String, Integer> getPostingList() {
+        return postingList;
+    }
 
-
+    public void setPostingList(HashMap<String, Integer> postingList) {
+        this.postingList = postingList;
+    }
 
     public PostingList(String docId, Integer termFrequency) {
         postingList.put(docId, termFrequency);

@@ -80,7 +80,7 @@ public class PreProcessing {
                 }
             }
             //documentFrequency of a term = length of the list of postings of that term
-            for(String term : lexicon.getLexiconTerms()) {
+            for(String term : lexicon.getLexicon().getLexiconTerms()) {
                 lexicon.setDocumentFrequency(invIndex, term);
             }
         }

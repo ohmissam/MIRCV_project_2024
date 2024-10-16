@@ -43,7 +43,7 @@ public class DAAT {
             // check if the current postinglist is pointing to the docid we are currently processing
 
             int postingToScore = postingList.getTermFrequency(docid);
-            Map<String, LexiconEntry> dictionary = lexicon.getDictionary();
+            Map<String, LexiconEntry> dictionary = lexicon.getLexicon();
             LexiconEntry lexiconEntry = dictionary.get(postingList);
             docScore += Scorer.computeTFIDF(postingToScore,lexiconEntry.getInverseDocumentFrequency());
 
