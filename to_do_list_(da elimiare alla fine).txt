@@ -1,2 +1,17 @@
 1 - Implementare lo SPIMI  https://nlp.stanford.edu/IR-book/html/htmledition/single-pass-in-memory-indexing-1.html
     1.1 - Salvare file diversi per docid e per le frequenze
+
+
+
+----------------------- SCHEMA STRUTTURA ---------------------------
+
+Files disco PER OGNI BLOCCO della collezione:
+- Lessico: termini in ordine lessicografico +
+           offset ai relativi DocIds e Tfs della posting list +
+           lunghezza posting list
+- Inverted Index DocIds: docIds in ordine e compressi
+- Inverted Index Tfs: term frequencies
+
+Files disco CONDIVISI:
+- Document Index
+- Statistics o Skip Info
