@@ -20,4 +20,5 @@ public class Config {
     public static final String INVINDEX_FILE_PATH = "data\\InvertedIndex.txt";
 
 
+    public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = true;
 }

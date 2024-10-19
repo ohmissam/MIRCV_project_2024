@@ -3,190 +3,130 @@ package it.unipi.dii.aide.mircv.preProcessing;
 import java.io.*;
 import java.util.*;
 
-import it.unipi.dii.aide.mircv.model.InvertedIndex;
-import it.unipi.dii.aide.mircv.model.DocumentIndex;
-import it.unipi.dii.aide.mircv.model.Lexicon;
-import opennlp.tools.stemmer.*;
+import it.unipi.dii.aide.mircv.Config; // Import the Config class to access configuration settings
+import opennlp.tools.stemmer.PorterStemmer;
 
 public class PreProcessing {
 
-    private final static String STOPWORDS_PATH = "data\\stopwords.txt";
-    private final static String COLLECTION_PATH = "data\\collection.tsv";
-    private static final String LEXICON_FILE_PATH = "data\\Lexicon.txt";
-    private static final String DOCINDEX_FILE_PATH = "data\\DocumentIndex.txt";
-    private static final String INVINDEX_FILE_PATH = "data\\InvertedIndex.txt";
-    /**
-     * regEx to match strings in camel case
-     */
+    // File paths and flags retrieved from the configuration settings
+    private static final String STOPWORDS_PATH = Config.STOPWORDS_PATH; // Path to the stopwords file
+    private static final String COLLECTION_PATH = Config.COLLECTION_PATH; // Path to the document collection file
+    // Flag to enable both stemming and stopword removal
+    private static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = Config.ENABLE_STEMMING_AND_STOPWORD_REMOVAL;
+
+    // Regex to match camel case strings
     private static final String CAMEL_CASE_MATCHER = "(?<=[a-z])(?=[A-Z])";
-
-    /**
-     * maximum length a term should have
-     */
+    // Maximum length a term should have
     private static final int THRESHOLD = 64;
-    public static void main(String[] args) throws IOException {
 
-        ArrayList<String> stopWords;
-        stopWords = retrieveStopwords(STOPWORDS_PATH);//new ArrayList<>();
-
-        Lexicon lexicon = new Lexicon();
-        DocumentIndex docIndex = new DocumentIndex();
-        InvertedIndex invIndex = new InvertedIndex();
-        PorterStemmer stemmer = new PorterStemmer();
-        String line;
-        String[] temp;
-        String[] tokens;
-        int numOfDocs = 0;
-        int docLength = 0;
-        String docId = "";
-
-        try (BufferedReader br = new BufferedReader(new FileReader(COLLECTION_PATH))) {
-            /*IMPORTANTE DALLA DOC
-             your program should have a compile flag that allows you to enalbe/disble stemming & stopword removal.
-             */
-            while ((line = br.readLine()) != null) {
-                temp = line.split("\t");
-
-                //do things only if there is any content
-                if (!temp[1].isEmpty()) {
-                    numOfDocs++;        //keep total documents count
-
-                    docId = temp[0];
-                    line = textCleaning(temp[1]); //temp[1] is a string - textCleaning does toLowerCase()
-
-                    docIndex.addDoc(docId); //add current doc in the documentIndex
-
-                    tokens = line.split(" ");
-                    for (String token : tokens) {
-                        if (removeStopwords(token, stopWords))
-                            continue;
-                        token = stemWord(token, stemmer);
-                        //keep the count of stemmed words in the document
-                        docLength++;
-
-                        /*
-                        first time a term is encountered set tf = 1 and df = 0 (df = num di doc in cui appare il termine)
-                        df is set after the while-loop
-                        */
-                        lexicon.addTerm(token);
-
-                        //the check on IF the posting EXISTS is done within the method
-                        invIndex.setPosting(token, docId);
-
-                    }
-                    //put the doc tot.length in the length of the DocEntry obj
-                    docIndex.setDocumentLength(docId, docLength);
-                    docLength = 0;
-                }
-            }
-            //documentFrequency of a term = length of the list of postings of that term
-            for(String term : lexicon.getLexicon().getLexiconTerms()) {
-                lexicon.setDocumentFrequency(invIndex, term);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //save data structure
-        /*try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(LEXICON_FILE_PATH));
-            writer.write(lexicon.toString());
-            writer.close();
-
-            writer = new BufferedWriter(new FileWriter(DOCINDEX_FILE_PATH));
-            writer.write(docIndex.toString());
-            writer.close();
-
-            writer = new BufferedWriter(new FileWriter(INVINDEX_FILE_PATH));
-            writer.write(invIndex.toString());
-            writer.close();
-
-
-        }
-        catch (Exception e) {
-            System.out.println("EXC");
-            e.printStackTrace();
-        }*/
-
-    }
-
-    public static String stemWord(String token, PorterStemmer stemmer){
+    // Method to apply stemming to a token using the Porter stemmer
+    public static String stemWord(String token, PorterStemmer stemmer) {
         return stemmer.stem(token);
     }
 
-    public static boolean removeStopwords(String token, ArrayList<String> stopwords){
-        for (String word: stopwords) {
-            if (token.equals(word))
-                return true;
-        }
-        return false;
+    // Method to check if a token is a stopword
+    public static boolean removeStopwords(String token, ArrayList<String> stopwords) {
+        return stopwords.contains(token); // Returns true if the token is found in the stopwords list
     }
 
-    public static String[] removeStopwords(String[] tokens) throws IOException {
-        ArrayList<String> stopWords = retrieveStopwords(STOPWORDS_PATH);
-        List<String> tokensList = new ArrayList<>(Arrays.asList(tokens));
-
-        Iterator<String> iterator = tokensList.iterator();
-        while (iterator.hasNext()) {
-            String token = iterator.next();
-            if (stopWords.contains(token)) {
-                iterator.remove();
-            }
-        }
-
-        // Aggiorna l'array originale con i token filtrati
-        tokens = tokensList.toArray(new String[0]);
-        return tokens;
-    }
-
+    // Method to retrieve stopwords from the specified file path
     public static ArrayList<String> retrieveStopwords(String stopwordsPath) throws IOException {
-
-        BufferedReader bfr = new BufferedReader(new FileReader(stopwordsPath));
-        ArrayList<String> stopwordsList = new ArrayList<>();
+        BufferedReader bfr = new BufferedReader(new FileReader(stopwordsPath)); // Create a BufferedReader to read the file
+        ArrayList<String> stopwordsList = new ArrayList<>(); // List to store stopwords
         String word;
         while ((word = bfr.readLine()) != null) {
-            stopwordsList.add(word);
+            stopwordsList.add(word); // Add each stopword to the list
         }
-        bfr.close();
-        return stopwordsList;
+        bfr.close(); // Close the BufferedReader
+        return stopwordsList; // Return the list of stopwords
     }
 
-    public static String textCleaning(String text){
-        //remove URLs - testato
+    // Method to clean the input text by removing URLs, tags, and non-letter characters
+    public static String textCleaning(String text) {
+        // Remove URLs
         text = text.replaceAll("(https?):\\/\\/(w+)?\\.[a-zA-Z0-9!\"£$%&\\/()=?^'*@:\\._\\-\\+~#]+", " ");
-
-        //remove tags like <£asd 3P > - testato, ma non prende tag che contiene un altro tag
+        // Remove tags (e.g., HTML tags)
         text = text.replaceAll("<[a-zA-Z0-9\\s+!\"£$%&\\/()=?^'*@:\\._\\-\\+~#]+>", "");
-
-        //remove non-letter and non-numeric characters - testato elimina tutto tranne che lettere e numeri
-        text = text.replaceAll("[^\\w\\s]+"," ");
-
-        //replace white multispaces with just one -testato
+        // Remove non-letter and non-numeric characters
+        text = text.replaceAll("[^\\w\\s]+", " ");
+        // Replace multiple spaces with a single space
         text = text.replaceAll("[\\s]{2,}", " ");
-
-        return text.trim().toLowerCase();
+        return text.trim().toLowerCase(); // Return cleaned text in lowercase
     }
 
+    // Method to tokenize the input text into individual tokens
     public static String[] tokenize(String text) {
+        ArrayList<String> tokens = new ArrayList<>(); // List to store tokens
+        String[] splittedText = text.split("\\s"); // Split text by whitespace
 
-        //list of tokens
-        ArrayList<String> tokens = new ArrayList<>();
-
-        //tokenize splitting on whitespaces
-        String[] splittedText = text.split("\s");
-
-        for(String token: splittedText) {
-            //split words who are in CamelCase
-            String[] subtokens = token.split(CAMEL_CASE_MATCHER);
+        for (String token : splittedText) {
+            String[] subtokens = token.split(CAMEL_CASE_MATCHER); // Split CamelCase words
             for (String subtoken : subtokens) {
-                //if a token has a length over a certain threshold, cut it at the threshold value
+                // If a token exceeds the threshold length, cut it to the threshold value
                 subtoken = subtoken.substring(0, Math.min(subtoken.length(), THRESHOLD));
-                //return token in lower case
+                // Add token in lowercase to the list
                 tokens.add(subtoken.toLowerCase(Locale.ROOT));
             }
         }
+        return tokens.toArray(new String[0]); // Return tokens as an array
+    }
 
-        return tokens.toArray(new String[0]);
+    // Main method to execute the preprocessing steps
+    public static void main(String[] args) throws IOException {
+        // Load stopwords from the specified path
+        ArrayList<String> stopWords = retrieveStopwords(STOPWORDS_PATH);
+        System.out.println("Stopwords loaded: " + stopWords.size()); // Print the number of stopwords loaded
+
+        PorterStemmer stemmer = new PorterStemmer(); // Create a new PorterStemmer instance
+        String line; // Variable to hold each line read from the collection
+        long numOfDocs = 0; // Counter for valid documents processed
+        long docId; // Variable to hold document ID
+        int malformedLines = 0; // Counter for malformed lines in the collection
+
+        try (BufferedReader br = new BufferedReader(new FileReader(COLLECTION_PATH))) { // Open the collection file for reading
+            System.out.println("Processing collection from: " + COLLECTION_PATH); // Print the path of the collection being processed
+
+            // Process each line of the collection
+            while ((line = br.readLine()) != null) {
+                String[] temp = line.split("\t"); // Split the line into parts based on tab
+
+                // Check if the line is malformed (must have at least 2 non-empty elements)
+                if (temp.length < 2 || temp[0].isEmpty() || temp[1].isEmpty()) {
+                    malformedLines++; // Increment the counter for malformed lines
+                    continue; // Skip the malformed line
+                }
+
+                numOfDocs++; // Increment the valid document counter
+                docId = numOfDocs; // Initialize docId with the current counter
+
+                // Clean the content of the document
+                line = textCleaning(temp[1]);
+                System.out.println("Processing document ID: " + docId); // Print the document ID being processed
+
+                String[] tokens = line.split(" "); // Tokenize the cleaned line into individual tokens
+                for (String token : tokens) {
+                    // Check if stemming and stopword removal are enabled
+                    if (ENABLE_STEMMING_AND_STOPWORD_REMOVAL) {
+                        // Remove stopwords if applicable
+                        if (removeStopwords(token, stopWords)) {
+                            System.out.println("Skipped stopword: " + token); // Print the skipped stopword
+                            continue; // Skip stopwords
+                        }
+                        // Apply stemming if enabled
+                        token = stemWord(token, stemmer); // Apply stemming
+                        System.out.println("Stemmed token: " + token); // Print the stemmed token
+                    } else {
+                        // If the flag is not set, process token without stemming or stopword removal
+                        System.out.println("Token without processing: " + token);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Print the stack trace if an error occurs
+        }
+
+        // Print summary of processing
+        System.out.println("Total documents processed: " + numOfDocs); // Print the total number of documents processed
+        System.out.println("Malformed lines skipped: " + malformedLines); // Print the number of malformed lines skipped
     }
 }
