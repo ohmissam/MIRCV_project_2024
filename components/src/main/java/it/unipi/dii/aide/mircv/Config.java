@@ -10,6 +10,9 @@ public class Config {
     //String for the document collection path
     public final static String COLLECTION_PATH = "data\\collection.tsv";
 
+    //String for the compressed document collection path
+    public final static String COMPRESSED_COLLECTION_PATH = "data\\collection_small.tar.gz";
+
     //String for the path of
     public static final String LEXICON_FILE_PATH = "data\\Lexicon.txt";
 
