@@ -3,15 +3,15 @@ package it.unipi.dii.aide.mircv.model;
 /**
  Class representing a processed document after preProcessing
  */
-public class processedDocument {
+public class ProcessedDocument {
 
     public String  docNo;
 
     public String[] tokens;
 
-    public processedDocument() {}
+    public ProcessedDocument() {}
 
-    public processedDocument(String docNo, String[] tokens) {
+    public ProcessedDocument(String docNo, String[] tokens) {
         this.docNo = docNo;
         this.tokens = tokens;
     }
