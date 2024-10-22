@@ -10,7 +10,7 @@ public class DocumentAfterPreprocessing {
     private int documentLength;      // Length of the terms array
 
     // Constructor that initializes with document number and terms
-    public DocumentAfterPreprocessing(String docNo, String[] terms) {
+    public DocumentAfterPreprocessing( String docNo, String[] terms) {
         this.docNo = docNo;
         this.terms = terms;
         this.documentLength = terms.length;

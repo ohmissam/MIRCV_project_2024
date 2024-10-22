@@ -25,7 +25,7 @@ public class DocumentPreProcessor {
 
 
     // Flag to enable both stemming and stopword removal
-    private static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = true; // Set this based on your configuration
+    private static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = Config.ENABLE_STEMMING_AND_STOPWORD_REMOVAL; // Set this based on your configuration
 
     /**
      * Process a single document by tokenizing, removing stopwords, and applying stemming if enabled.
@@ -33,7 +33,7 @@ public class DocumentPreProcessor {
      * @param line String containing a document in the format: [doc_id]\t[text]\n
      * @return ParsedDocument object containing the document ID and tokenized text
      */
-    public static DocumentAfterPreprocessing processDocument(String line) {
+    public static DocumentAfterPreprocessing processDocument(String line, long docId) {
         // Utility variables to keep the current doc ID and text
         String docno;
         String text;
@@ -70,7 +70,7 @@ public class DocumentPreProcessor {
         }
 
         // Return a new ParsedDocument containing the doc ID and tokenized text
-        return new DocumentAfterPreprocessing(docno, splittedText);
+        return new DocumentAfterPreprocessing(docId, docno, splittedText);
     }
 
     /**

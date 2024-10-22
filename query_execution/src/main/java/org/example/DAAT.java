@@ -24,7 +24,7 @@ public class DAAT {
 
       //  if(Flags.isStemStopRemovalEnabled()) {
             // remove stopwords
-            tokens = PreProcessing.removeStopwords(tokens);
+//            tokens = PreProcessing.removeStopwords(tokens);  //DA RIMETTERE
 
                 // perform stemming
             String[] list = getStems(tokens);

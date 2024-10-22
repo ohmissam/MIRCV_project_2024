@@ -1,4 +1,4 @@
-package it.unipi.dii.aide.mircv.utils;
+package it.unipi.dii.aide.mircv;
 
 import it.unipi.dii.aide.mircv.Config;
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
@@ -11,7 +11,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class MainDatasetIndexer {
+public class MainComponents {
     // Path of the compressed dataset
     private static final String COMPRESSED_COLLECTION_PATH = Config.COMPRESSED_COLLECTION_PATH;
 
@@ -26,14 +26,14 @@ public class MainDatasetIndexer {
             String line;
             // TO DO
             // InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
-            int numberOfDocuments = 0;
+            int numberOfDocuments = 1;
 
             // Read the document line by line
             while ((line = bufferedReader.readLine()) != null) {
                 // Stampa il documento originale prima del preprocessing
                 System.out.println("[MAIN] Original Document: " + line);
 
-                DocumentAfterPreprocessing documentAfterPreprocessing = DocumentPreProcessor.processDocument(line); // Passa true se necessario per stemming e stopword
+                DocumentAfterPreprocessing documentAfterPreprocessing = DocumentPreProcessor.processDocument(line, numberOfDocuments); // Passa true se necessario per stemming e stopword
 
                 if (documentAfterPreprocessing != null && documentAfterPreprocessing.getTerms().length > 0) {
                     // Stampa il documento dopo il preprocessing
