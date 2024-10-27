@@ -30,7 +30,13 @@ public class LexiconEntry {
     private int documentFrequency; // num of docs in which the term appears
     private double inverseDocumentFrequency;
 
+    public LexiconEntry() {
+        this.offsetDocId = 0;
+        this.offsetFrequency = 0;
+        this.postingListLength = 0;
+    }
 
+    /*
     public LexiconEntry(int termFrequency, int documentFrequency) {
         this.termFrequency = termFrequency;
         this.documentFrequency = documentFrequency;
@@ -40,6 +46,7 @@ public class LexiconEntry {
         //else
         //alla fine del processing IDF = log(Num tot documenti / num doc in cui è presente il term)
     }
+     */
 
     public LexiconEntry(long offsetDocId, long offsetFrequency, long offsetSkipBlock, int postingListLength) {
         this.offsetDocId = offsetDocId;
@@ -47,6 +54,7 @@ public class LexiconEntry {
         this.offsetSkipBlock = offsetSkipBlock;
         this.postingListLength = postingListLength;
     }
+
     public void set(int offsetDocId, int offsetFrequency, int postingListLength) {
         this.setOffsetDocId(offsetDocId);
         this.setOffsetFrequency(offsetFrequency);
@@ -136,5 +144,16 @@ public class LexiconEntry {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "LexiconEntry{" +
+                //"offsetDocId=" + offsetDocId +
+                //", offsetFrequency=" + offsetFrequency +
+                //", offsetSkipBlock=" + offsetSkipBlock +
+                ", postingListLength=" + postingListLength +
+                ", termFrequency=" + termFrequency +
+               // ", documentFrequency=" + documentFrequency +
+               //", inverseDocumentFrequency=" + inverseDocumentFrequency +
+                '}';
+    }
 }

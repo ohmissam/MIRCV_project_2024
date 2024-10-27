@@ -29,4 +29,10 @@ public class Lexicon {
         this.lexicon = lexicon;
     }
 
+    @Override
+    public String toString() {
+        return "Lexicon{" +
+                "lexicon=" + lexicon +
+                '}';
+    }
 }

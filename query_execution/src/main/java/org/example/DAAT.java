@@ -32,7 +32,7 @@ public class DAAT {
         return null;
 
     }
-    public static double scoreDocument(String docid, ArrayList<PostingList> postingsToScore, String scoringFunction, Lexicon lexicon){
+    public static double scoreDocument(Long docid, ArrayList<PostingList> postingsToScore, String scoringFunction, Lexicon lexicon){
 
         // initialization of document's score
         double docScore = 0;

@@ -1,7 +1,5 @@
 package it.unipi.dii.aide.mircv.model;
 
-import it.unipi.dii.aide.mircv.model.PostingList;
-
 import java.util.*;
 
 public class InvertedIndex {
@@ -19,16 +17,17 @@ public class InvertedIndex {
         ELSE, i.e., the posting with the current doc doesn't exist (means we are in a new doc)
             then we add a new posting (with tf =1)
     */
-    public void setPosting(String term, String docId) {
+    // vedere se è effettivamente necessaria
+    public void setPosting(String term, Long docId) {
         PostingList postingList = invertedIndex.get(term);
         if(postingList == null){
             invertedIndex.put(term, new PostingList(docId, 1));
         }
-        else if(postingList.containsKey(docId)) {
-            postingList.setTermFrequency(docId);
+        else if(postingList.getPostingList().containsKey(docId)) {
+            postingList.incrementTermFrequency(docId);
         }
         else {
-            postingList.addPosting(docId);
+            postingList.getPostingList().put(docId,1); // l'1 è a caso
         }
     }
 

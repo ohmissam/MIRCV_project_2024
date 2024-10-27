@@ -3,6 +3,7 @@ package it.unipi.dii.aide.mircv;
 import it.unipi.dii.aide.mircv.Config;
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
+import it.unipi.dii.aide.mircv.model.Lexicon;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -24,24 +25,24 @@ public class MainComponents {
             // Create a BufferedReader to read the document line by line
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
-            // TO DO
-            // InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
+
+            InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
             int numberOfDocuments = 1;
 
             // Read the document line by line
             while ((line = bufferedReader.readLine()) != null) {
                 // Stampa il documento originale prima del preprocessing
-                System.out.println("[MAIN] Original Document: " + line);
+                // System.out.println("[MAIN] Original Document: " + line);
 
                 DocumentAfterPreprocessing documentAfterPreprocessing = DocumentPreProcessor.processDocument(line, numberOfDocuments); // Passa true se necessario per stemming e stopword
 
                 if (documentAfterPreprocessing != null && documentAfterPreprocessing.getTerms().length > 0) {
                     // Stampa il documento dopo il preprocessing
-                    System.out.println("[MAIN] Processed Document: " + documentAfterPreprocessing.toString());
+                    // System.out.println("[MAIN] Processed Document: " + documentAfterPreprocessing.toString());
 
-                    // TO DO
-                    // invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
+                    invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
                     numberOfDocuments++;
+
                 }
             }
             System.out.println("[MAIN] Total documents processed: " + numberOfDocuments);

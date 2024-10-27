@@ -1,8 +1,6 @@
 package it.unipi.dii.aide.mircv.builder;
 
-import it.unipi.dii.aide.mircv.model.InvertedIndex;
-import it.unipi.dii.aide.mircv.model.Lexicon;
-import it.unipi.dii.aide.mircv.model.LexiconEntry;
+import it.unipi.dii.aide.mircv.model.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,10 +21,54 @@ public class InvertedIndexBuilder {
     Lexicon lexicon;
     InvertedIndex invertedIndex;
 
+    public InvertedIndexBuilder() {
+        this.lexicon = new Lexicon();
+        this.invertedIndex = new InvertedIndex();
+    }
+
     public InvertedIndexBuilder(Lexicon lexicon, InvertedIndex invertedIndex) {
         this.lexicon = lexicon;
         this.invertedIndex = invertedIndex;
     }
+
+    public void insertDocument(DocumentAfterPreprocessing documentAfterPreprocessing) {
+        Long docId = documentAfterPreprocessing.getDocId();
+
+        for (String term : documentAfterPreprocessing.getTerms()) {
+
+            // if the term is already present in the lexicon
+            if (lexicon.getLexicon().containsKey(term)) {
+                // get the list of the postings of the term
+                PostingList postingList = invertedIndex.getInvertedIndex().get(term);
+
+                // Check if a posting already exists for the current docId
+                if (postingList.getPostingList().containsKey(docId)) {
+                    // If it exists, increment the term frequency for this docId
+                    postingList.incrementTermFrequency(docId);
+                } else {
+                    // Otherwise, add a new posting for the docId with an initial frequency of 1
+                    postingList.getPostingList().put(docId, 1);
+                }
+
+
+            } else {
+                // If the term is not present in the lexicon
+                lexicon.getLexicon().put(term, new LexiconEntry());
+
+                // Create a new posting list with the current docId
+                PostingList postingsList = new PostingList(docId, 1);
+
+                // Insert the posting list into the inverted index
+                invertedIndex.getInvertedIndex().put(term, postingsList);
+            }
+
+        }
+
+        System.out.println(lexicon.toString());
+        System.out.println(invertedIndex.toString());
+    }
+
+
 
     public void writeLexiconToFile(String outputPath) throws FileNotFoundException {
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(outputPath, "rw")) {
@@ -52,7 +94,7 @@ public class InvertedIndexBuilder {
 
                 postingList.getPostingList().forEach((docId, freq) -> {
                     //Create the buffers for each element to be written
-                    byte[] postingDocId = ByteBuffer.allocate(8).putLong(Long.parseLong(docId)).array();
+                    byte[] postingDocId = ByteBuffer.allocate(8).putLong(docId).array();
                     byte[] postingFreq = ByteBuffer.allocate(4).putInt(freq).array();
 
                     try {
@@ -84,7 +126,7 @@ public class InvertedIndexBuilder {
                 int tf = entry.getTermFrequency();
                 entry.setTermFrequency(tf + 1);
             } else {
-                lexicon.getLexicon().put(term, new LexiconEntry(1, 0));
+                lexicon.getLexicon().put(term, new LexiconEntry());
             }
         }
 

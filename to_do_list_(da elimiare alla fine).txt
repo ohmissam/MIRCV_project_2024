@@ -20,3 +20,8 @@ Files disco PER OGNI BLOCCO della collezione:
 Files disco CONDIVISI:
 - Document Index
 - Statistics o Skip Info
+
+
+27/10 siamo arrivati a riga 54 dell'invertedIndexBuilder per vedere cosa inserire nel LexiconEntry
+e avevamo il dubbio di capire dove va/quando va incrementato il valore di postingListLength per indicare quanti
+posting abbiamo nella postingList relativa al termine
