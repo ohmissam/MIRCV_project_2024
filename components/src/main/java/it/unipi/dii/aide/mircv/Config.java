@@ -24,4 +24,6 @@ public class Config {
 
 
     public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = false;
+
+    public static final double PERCENTAGE = 0.7;
 }

@@ -12,6 +12,8 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+import static it.unipi.dii.aide.mircv.Config.PERCENTAGE;
+
 public class MainComponents {
     // Path of the compressed dataset
     private static final String COMPRESSED_COLLECTION_PATH = Config.COMPRESSED_COLLECTION_PATH;
@@ -29,6 +31,14 @@ public class MainComponents {
             InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
             int numberOfDocuments = 1;
 
+            long totalMemory = Runtime.getRuntime().totalMemory();
+
+            //Define the threshold of memory over which the index must be flushed to disk
+            long threshold = (long) (totalMemory * PERCENTAGE);
+
+
+            int blockDocuments = 0;
+
             // Read the document line by line
             while ((line = bufferedReader.readLine()) != null) {
                 // Stampa il documento originale prima del preprocessing
@@ -43,6 +53,18 @@ public class MainComponents {
                     invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
                     numberOfDocuments++;
 
+                    blockDocuments++;
+
+
+                    if(!isMemoryAvailable(threshold)){
+                        System.out.println("[MAIN] Flushing" +blockDocuments + "odcuments to disk..");
+
+
+
+                    }
+
+
+
                 }
             }
             System.out.println("[MAIN] Total documents processed: " + numberOfDocuments);
@@ -52,6 +74,14 @@ public class MainComponents {
             System.err.println("[ERROR] An error occurred while processing the dataset: " + e.getMessage());
         }
     }
+
+    private static boolean isMemoryAvailable(long threshold){
+
+        //Subtract the free memory at the moment to the total memory allocated obtaining the memory used, then check
+        //if the memory used is above the threshold
+        return Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory() < threshold;
+    }
+
 
     private static InputStreamReader extractDataset(String path) throws IOException {
         // Create a File object for the specified path
@@ -72,5 +102,8 @@ public class MainComponents {
             throw new IOException("No files found in the archive.");
         }
     }
+
+
+
 }
 

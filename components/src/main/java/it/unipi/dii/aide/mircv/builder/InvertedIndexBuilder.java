@@ -6,9 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static it.unipi.dii.aide.mircv.model.LexiconEntry.*;
 
@@ -49,11 +52,10 @@ public class InvertedIndexBuilder {
                     // Otherwise, add a new posting for the docId with an initial frequency of 1
                     postingList.getPostingList().put(docId, 1);
                 }
-
-
             } else {
+                LexiconEntry lexiconEntry = new LexiconEntry();
                 // If the term is not present in the lexicon
-                lexicon.getLexicon().put(term, new LexiconEntry());
+                lexicon.getLexicon().put(term, lexiconEntry);
 
                 // Create a new posting list with the current docId
                 PostingList postingsList = new PostingList(docId, 1);
@@ -68,6 +70,36 @@ public class InvertedIndexBuilder {
         System.out.println(invertedIndex.toString());
     }
 
+
+    /**
+     * Sort the lexicon with complexity O(nlog(n)) where n is the # of elements in the lexicon.
+     */
+    public void sortLexicon(){
+
+        //To not double the memory instantiating a new data structure we've decided to use the following sorting
+        lexicon = lexicon.getLexicon().entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1, LinkedHashMap::new)); //LinkedHashMap to keep O(1) time complexity
+
+    }
+    /**
+     * Sort the inverted index with complexity O(nlog(n)) where n is the # of elements in the inverted index.
+     */
+    public void sortInvertedIndex(){
+
+        invertedIndex = invertedIndex.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1, LinkedHashMap::new));
+
+    }
 
 
     public void writeLexiconToFile(String outputPath) throws FileNotFoundException {

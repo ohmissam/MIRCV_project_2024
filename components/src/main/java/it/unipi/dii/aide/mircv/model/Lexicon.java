@@ -11,9 +11,9 @@ public class Lexicon {
 
 
     /*String -> term*/
-    private  Map<String, LexiconEntry> lexicon;
+    private  HashMap<String, LexiconEntry> lexicon;
 
-    public  Map<String, LexiconEntry> getLexicon() {
+    public  HashMap<String, LexiconEntry> getLexicon() {
         return lexicon;
     }
 
@@ -21,13 +21,13 @@ public class Lexicon {
         lexicon = new HashMap<>();
     }
 
-    public Lexicon(Map<String, LexiconEntry> lexicon) {
-        this.lexicon = lexicon;
-    }
+    //public Lexicon(HashMap<String, LexiconEntry> lexicon) {
+    //    this.lexicon = lexicon;
+    //}
 
-    public void setLexicon(Map<String, LexiconEntry> lexicon) {
-        this.lexicon = lexicon;
-    }
+    //public void setLexicon(HashMap<String, LexiconEntry> lexicon) {
+    //    this.lexicon = lexicon;
+    //}
 
     @Override
     public String toString() {
