@@ -10,6 +10,8 @@ import java.util.Set;
 public class Lexicon {
 
 
+
+
     /*String -> term*/
     private  HashMap<String, LexiconEntry> lexicon;
 
@@ -28,6 +30,9 @@ public class Lexicon {
     //public void setLexicon(HashMap<String, LexiconEntry> lexicon) {
     //    this.lexicon = lexicon;
     //}
+    public void setLexicon(HashMap<String, LexiconEntry> lexicon) {
+        this.lexicon = lexicon;
+    }
 
     @Override
     public String toString() {

@@ -77,13 +77,13 @@ public class InvertedIndexBuilder {
     public void sortLexicon(){
 
         //To not double the memory instantiating a new data structure we've decided to use the following sorting
-        lexicon = lexicon.getLexicon().entrySet()
+        lexicon.setLexicon(lexicon.getLexicon().entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
-                        (e1, e2) -> e1, LinkedHashMap::new)); //LinkedHashMap to keep O(1) time complexity
+                        (e1, e2) -> e1, LinkedHashMap::new))); //LinkedHashMap to keep O(1) time complexity
 
     }
     /**
@@ -91,13 +91,13 @@ public class InvertedIndexBuilder {
      */
     public void sortInvertedIndex(){
 
-        invertedIndex = invertedIndex.entrySet()
+        invertedIndex.setInvertedIndex(invertedIndex.getInvertedIndex().entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
-                        (e1, e2) -> e1, LinkedHashMap::new));
+                        (e1, e2) -> e1, LinkedHashMap::new)));
 
     }
 
