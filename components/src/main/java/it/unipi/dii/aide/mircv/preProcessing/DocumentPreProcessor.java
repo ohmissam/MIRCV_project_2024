@@ -1,9 +1,8 @@
 package it.unipi.dii.aide.mircv.preProcessing;
 
-import it.unipi.dii.aide.mircv.Config;
+import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
 import opennlp.tools.stemmer.PorterStemmer;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,16 +15,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DocumentPreProcessor {
-    private static final String STOPWORDS_PATH = Config.STOPWORDS_PATH; // Path to the stopwords file
-
+    // Path to the stopwords file
+    private static final String STOPWORDS_PATH = Config.STOPWORDS_PATH;
 
     // List of strings containing the stopwords
     private static List<String> stopWords =  loadStopWords();
 
-
-
     // Flag to enable both stemming and stopword removal
-    private static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = Config.ENABLE_STEMMING_AND_STOPWORD_REMOVAL; // Set this based on your configuration
+    private static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = Config.ENABLE_STEMMING_AND_STOPWORD_REMOVAL;
 
     /**
      * Process a single document by tokenizing, removing stopwords, and applying stemming if enabled.
@@ -102,7 +99,6 @@ public class DocumentPreProcessor {
      * @param stopwords List of stopwords to be removed
      * @return Array of tokens without the stopwords
      */
-
 
     private static String[] removeStopWords(String[] text, List<String> stopwords) {
         // Use streams for efficient performance in removing stopwords

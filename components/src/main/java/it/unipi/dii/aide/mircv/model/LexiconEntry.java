@@ -10,18 +10,6 @@ import java.util.Set;
 
 public class LexiconEntry {
 
-    //Length in bytes of the term field
-    public final static int TERM_LENGTH = 48;
-
-    //Length in bytes of the offsetDocId field
-    public final static int OFFSET_DOCIDS_LENGTH = 8;
-
-    //Length in bytes of the frequency length field
-    public final static int OFFSET_FREQUENCIES_LENGTH = 8;
-
-    //Length in bytes of the postingListLength field
-    public final static int POSTING_LIST_LENGTH = 4;
-
     private long offsetDocId;
     private long offsetFrequency;
     private long offsetSkipBlock;
@@ -118,31 +106,7 @@ public class LexiconEntry {
         this.offsetSkipBlock = offsetSkipBlock;
     }
 
-    /*
-            IF token already exists in the dictionary then increase the term frequency
-                BUT NOT document frequency (done after while-loop in preProcessing)
-            ELSE add the term to the lexicon
-            */
-    public void writeToFile(RandomAccessFile lexiconFile, String key, LexiconEntry termInfo){
 
-        //Fill with whitespaces to keep the length standard
-        String tmp = Utils.leftpad(key, TERM_LENGTH);
-
-        byte[] term = ByteBuffer.allocate(TERM_LENGTH).put(tmp.getBytes()).array();
-        byte[] offsetDocId = ByteBuffer.allocate(OFFSET_DOCIDS_LENGTH).putLong(termInfo.getOffsetDocId()).array();
-        byte[] offsetFrequency = ByteBuffer.allocate(OFFSET_FREQUENCIES_LENGTH).putLong(termInfo.getOffsetFrequency()).array();
-        byte[] postingListLength = ByteBuffer.allocate(POSTING_LIST_LENGTH).putInt(termInfo.getPostingListLength()).array();
-
-        try {
-            lexiconFile.write(term);
-            lexiconFile.write(offsetDocId);
-            lexiconFile.write(offsetFrequency);
-            lexiconFile.write(postingListLength);
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public String toString() {

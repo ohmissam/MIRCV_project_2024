@@ -62,4 +62,9 @@ public class InvertedIndex {
         return result.toString();
     }
 
+
+    // Method to clear the inverted index
+    public void clear() {
+        invertedIndex.clear();  // Clears the internal map
+    }
 }

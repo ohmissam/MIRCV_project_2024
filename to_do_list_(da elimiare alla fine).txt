@@ -4,7 +4,6 @@
     1.1 - Salvare file diversi per docid e per le frequenze, controllare se 8 bytes per entrambi (sono entrambi long?)
     1.2 - Cercare di capire la divisioni in blocchi e SkipBlock
     1.3 - Gestione memoria, capire come funziona
-
 2 - Controllare se bisogna usare FileChannel per leggere da disco
 
 

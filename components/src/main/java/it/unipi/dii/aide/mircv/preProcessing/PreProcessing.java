@@ -3,7 +3,7 @@ package it.unipi.dii.aide.mircv.preProcessing;
 import java.io.*;
 import java.util.*;
 
-import it.unipi.dii.aide.mircv.Config; // Import the Config class to access configuration settings
+import it.unipi.dii.aide.mircv.utils.Config; // Import the Config class to access configuration settings
 import opennlp.tools.stemmer.PorterStemmer;
 
 public class PreProcessing {
