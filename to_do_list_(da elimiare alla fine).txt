@@ -11,10 +11,34 @@
 
 Files disco PER OGNI BLOCCO della collezione:
 - Lessico: termini in ordine lessicografico +
-           offset ai relativi DocIds e Tfs della posting list +
+           offset ai relativi DocIds (ogni docId nell'inverted index occupa 8 byte) +
+           offset Tfs della posting list (ogni frequenza nell'inverted index occupa 4 byte) +
            lunghezza posting list
-- Inverted Index DocIds: docIds in ordine e compressi
+           ----------------------------------------
+           esempio. 2 termini con posting lists:
+           000 29:2, 30:2
+           01 96:1, 92:1, 93:1, 95:1
+
+           Nel lessico:
+           Term: 000
+           OffsetDocId: 0
+           OffsetFrequency: 0
+           PostingListLength: 2
+           --------------------------------
+           Term: 01
+           OffsetDocId: 16     (calcolata byteDocID * n.PostingListLenght = 8 * 2)
+           OffsetFrequency: 8  (calcolata byteFreq * n.PostingListLenght = 4 * 2)
+           PostingListLength: 4
+
+- Inverted Index DocIds: docIds (in ordine?) e compressi
 - Inverted Index Tfs: term frequencies
+           esempio Inverted Index:
+           DocId: 29 - Frequency: 2
+           DocId: 30 - Frequency: 2
+           DocId: 96 - Frequency: 1
+           DocId: 92 - Frequency: 1
+           DocId: 93 - Frequency: 1
+           DocId: 95 - Frequency: 1
 
 Files disco CONDIVISI:
 - Document Index

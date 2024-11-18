@@ -42,7 +42,7 @@ public class Lexicon {
         sb.append("Lexicon Details:\n");
         sb.append("Total terms: ").append(lexicon.size()).append("\n");
 
-        int previewLimit = 10; // Limit the number of entries to preview
+        int previewLimit = 100; // Limit the number of entries to preview
         int count = 0;
 
         for (Map.Entry<String, LexiconEntry> entry : lexicon.entrySet()) {

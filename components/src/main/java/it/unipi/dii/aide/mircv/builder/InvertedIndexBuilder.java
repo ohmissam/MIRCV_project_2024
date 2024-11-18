@@ -64,11 +64,7 @@ public class InvertedIndexBuilder {
                 // Insert the posting list into the inverted index
                 invertedIndex.getInvertedIndex().put(term, postingsList);
             }
-
         }
-
-//        System.out.println(lexicon.toString());
-//        System.out.println(invertedIndex.toString());
     }
 
 

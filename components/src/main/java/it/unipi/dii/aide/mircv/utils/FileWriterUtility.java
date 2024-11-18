@@ -27,7 +27,7 @@ public class FileWriterUtility {
         //Write the block's lexicon into the given file
         writeLexiconToFile(invertedIndexBuilder, LEXICON_BLOCK_PATH+blockNumber+".txt");
 
-        System.out.println("Block "+blockNumber+" written");
+        System.out.println("Block "+blockNumber+"'s inverted index and lexicon written");
 
         //Clear the inverted index and lexicon data structure and call the garbage collector
         invertedIndexBuilder.clear();
@@ -90,7 +90,7 @@ public class FileWriterUtility {
         }
     }
 
-    public void writeLexiconEntryToFile(LexiconEntry termInfo,RandomAccessFile lexiconFile, String key) throws FileNotFoundException {
+    public void writeLexiconEntryToFile(LexiconEntry termInfo, RandomAccessFile lexiconFile, String key) throws FileNotFoundException {
 
         //Fill with whitespaces to keep the length standard
         String tmp = Utils.leftpad(key, TERM_LENGTH);
