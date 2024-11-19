@@ -1,6 +1,7 @@
 package it.unipi.dii.aide.mircv.utils;
 
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
+import it.unipi.dii.aide.mircv.model.DocumentEntry;
 import it.unipi.dii.aide.mircv.model.LexiconEntry;
 
 import java.io.FileNotFoundException;
@@ -13,6 +14,8 @@ import static it.unipi.dii.aide.mircv.utils.Config.DOCIDS_BLOCK_PATH;
 import static it.unipi.dii.aide.mircv.utils.Config.FREQUENCIES_BLOCK_PATH;
 import static it.unipi.dii.aide.mircv.utils.Config.LEXICON_BLOCK_PATH;
 import static it.unipi.dii.aide.mircv.utils.LexiconEntryConfig.*;
+import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
+
 
 
 
@@ -111,4 +114,22 @@ public class FileWriterUtility {
         }
     }
 
+    public void writeDocumentEntryToDisk(long docId, DocumentEntry documentEntry, RandomAccessFile documentIndexFile){
+
+        //Fill with whitespaces to keep the length standard
+        String tmp = Utils.leftpad(documentEntry.getDocNo(), DOCNO_LENGTH);
+
+        //Instantiating the ByteBuffer to write to the file
+        byte[] docIdBytes = ByteBuffer.allocate(DOCID_LENGTH).putLong(docId).array();
+        byte[] docNoBytes = ByteBuffer.allocate(DOCNO_LENGTH).put(tmp.getBytes()).array();
+        byte[] docLenBytes = ByteBuffer.allocate(DOCLENGTH_LENGTH).putInt(documentEntry.getDocLength()).array();
+
+        try {
+            documentIndexFile.write(docIdBytes);
+            documentIndexFile.write(docNoBytes);
+            documentIndexFile.write(docLenBytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     }

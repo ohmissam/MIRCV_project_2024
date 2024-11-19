@@ -29,6 +29,7 @@ public class DocumentPreProcessor {
      *
      * @param line String containing a document in the format: [doc_id]\t[text]\n
      * @return ParsedDocument object containing the document ID and tokenized text
+     * @return ParsedDocument object containing the document ID and tokenized text
      */
     public static DocumentAfterPreprocessing processDocument(String line, long docId) {
         // Utility variables to keep the current doc ID and text

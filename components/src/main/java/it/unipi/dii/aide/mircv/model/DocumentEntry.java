@@ -1,33 +1,22 @@
 package it.unipi.dii.aide.mircv.model;
 
 public class DocumentEntry {
-    private int length;
-    private double PageRank;
+    //Docno of the document
+    private final String docNo;
 
-    public DocumentEntry(int length){// , double PageRank) {
-        this.length = length;
-        this.PageRank = 0;
+    //Length of the document
+    private final int docLength;
+
+    public String getDocNo() {
+        return docNo;
     }
 
-    public int getLength() {
-        return length;
+    public int getDocLength() {
+        return docLength;
     }
 
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public double getPR() {
-        return PageRank;
-    }
-
-    public void setPR(double PageRank) {
-        this.PageRank = PageRank;
-    }
-
-    public String toString() {
-        return "[length=" + length +
-                ", PageRank=" + PageRank +
-                "]";
+    public DocumentEntry(String docNo, int docLength) {
+        this.docNo = docNo;
+        this.docLength = docLength;
     }
 }

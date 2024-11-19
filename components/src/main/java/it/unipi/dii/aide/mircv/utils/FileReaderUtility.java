@@ -1,22 +1,29 @@
 package it.unipi.dii.aide.mircv.utils;
 
-import it.unipi.dii.aide.mircv.utils.Config;
-import it.unipi.dii.aide.mircv.utils.LexiconEntryConfig;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 public class FileReaderUtility {
+
+    // Configurazione delle lunghezze dei campi nel file DocumentIndex
+    private static final int DOCID_LENGTH = 8;      // Lunghezza in byte di docId (long)
+    private static final int DOCNO_LENGTH = 20;     // Lunghezza in byte di docNo (stringa, esempio)
+    private static final int DOCLENGTH_LENGTH = 4;  // Lunghezza in byte di docLength (int)
 
     public static void main(String[] args) {
         try {
             // Lettura e stampa del file Lexicon
             System.out.println("[MAIN] Reading lexicon file...");
-            readLexiconFile(Config.LEXICON_BLOCK_PATH + "1.txt");  // Modifica con il percorso effettivo del file
+            readLexiconFile(Config.LEXICON_BLOCK_PATH + "1.txt"); // Modifica con il percorso effettivo del file
 
             // Lettura e stampa dei file docids e frequenze
             System.out.println("[MAIN] Reading inverted index files...");
-            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "1.txt", Config.FREQUENCIES_BLOCK_PATH + "1.txt");  // Modifica con il percorso effettivo
+            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "1.txt", Config.FREQUENCIES_BLOCK_PATH + "1.txt"); // Modifica con il percorso effettivo
+
+            // Lettura e stampa del file DocumentIndex
+            System.out.println("[MAIN] Reading document index file...");
+            readDocumentIndexFile(Config.DOCINDEX_FILE_PATH); // Modifica con il percorso effettivo
 
         } catch (IOException e) {
             System.err.println("[ERROR] An error occurred while reading the files: " + e.getMessage());
@@ -80,6 +87,43 @@ public class FileReaderUtility {
 
                 // Stampa il docId e la frequenza
                 System.out.println("DocId: " + docId + " - Frequency: " + frequency);
+            }
+        }
+    }
+
+    // Metodo per leggere e stampare il contenuto del file DocumentIndex
+    public static void readDocumentIndexFile(String documentIndexFilePath) throws IOException {
+        try (RandomAccessFile documentIndexFile = new RandomAccessFile(documentIndexFilePath, "r")) {
+            long fileLength = documentIndexFile.length();
+
+            // Calcola il numero totale di record nel file
+            long recordSize = DOCID_LENGTH + DOCNO_LENGTH + DOCLENGTH_LENGTH;
+            long numberOfRecords = fileLength / recordSize;
+
+            System.out.println("[INFO] Reading DocumentIndex file... Total records: " + numberOfRecords);
+
+            // Leggi ogni record dal file
+            while (documentIndexFile.getFilePointer() < fileLength) {
+                // Leggi docId
+                byte[] docIdBytes = new byte[DOCID_LENGTH];
+                documentIndexFile.read(docIdBytes);
+                long docId = ByteBuffer.wrap(docIdBytes).getLong();
+
+                // Leggi docNo
+                byte[] docNoBytes = new byte[DOCNO_LENGTH];
+                documentIndexFile.read(docNoBytes);
+                String docNo = new String(docNoBytes).trim();
+
+                // Leggi docLength
+                byte[] docLengthBytes = new byte[DOCLENGTH_LENGTH];
+                documentIndexFile.read(docLengthBytes);
+                int docLength = ByteBuffer.wrap(docLengthBytes).getInt();
+
+                // Stampa i dati letti
+                System.out.println("DocId: " + docId);
+                System.out.println("DocNo: " + docNo);
+                System.out.println("DocLength: " + docLength);
+                System.out.println("-----------------------------");
             }
         }
     }

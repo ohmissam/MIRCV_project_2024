@@ -2,6 +2,8 @@ package it.unipi.dii.aide.mircv;
 
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
+import it.unipi.dii.aide.mircv.model.DocumentEntry;
+import it.unipi.dii.aide.mircv.model.DocumentIndex;
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileWriterUtility;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
@@ -15,21 +17,26 @@ import java.nio.charset.StandardCharsets;
 import static it.unipi.dii.aide.mircv.utils.Config.PERCENTAGE;
 // Path of the compressed dataset
 import static it.unipi.dii.aide.mircv.utils.Config.COMPRESSED_COLLECTION_PATH;
+import static it.unipi.dii.aide.mircv.utils.Config.DOCINDEX_FILE_PATH;
+
 
 public class MainComponents {
     static int blockNumber = 1;
+
 
     public static void main(String[] args) {
         // Print the start of the process
         System.out.println("[MAIN] Starting the extraction of the dataset...");
 
         // Execute the dataset extraction
-        try (InputStreamReader inputStreamReader = extractDataset(COMPRESSED_COLLECTION_PATH)) {
+        try (InputStreamReader inputStreamReader = extractDataset(COMPRESSED_COLLECTION_PATH);
+             RandomAccessFile documentIndexFile = new RandomAccessFile(DOCINDEX_FILE_PATH, "rw")) {
             // Create a BufferedReader to read the document line by line
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
 
             InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
+            DocumentIndex documentIndex = new DocumentIndex();
             FileWriterUtility fileWriterUtility = new FileWriterUtility();
             int numberOfDocuments = 0;
             //variable to keep track of the average length of the document
@@ -60,7 +67,15 @@ public class MainComponents {
                     documentAfterPreprocessing.setDocId(numberOfDocuments);
 
                     invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
-                    //TO DO: aggiungi doc index qui
+
+
+                    //Insert the document index row in the document index file. It's the building of the document
+                    // index. The document index will be read from file in the future, the important is to build it
+                    // and store it inside a file.
+                    DocumentEntry documentEntry = new DocumentEntry(documentAfterPreprocessing.getDocNo(),
+                            documentAfterPreprocessing.getDocumentLength());
+                    fileWriterUtility.writeDocumentEntryToDisk(documentAfterPreprocessing.getDocId(), documentEntry,
+                                                               documentIndexFile);
 
 //                    if(!isMemoryAvailable(threshold)){
 //                        System.out.println("[MAIN] Flushing" +blockDocuments + "documents to disk..");
@@ -83,6 +98,7 @@ public class MainComponents {
 //                    }
                 }
             }
+
 
             invertedIndexBuilder.sortLexicon();
             invertedIndexBuilder.sortInvertedIndex();

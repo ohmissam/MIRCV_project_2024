@@ -12,7 +12,7 @@ public class LexiconEntryConfig {
     public final static int OFFSET_FREQUENCIES_LENGTH = 8;
 
     // Length in bytes of the docId field
-    public final static int BYTES_DOCID_LENGTH = 4;
+    //public final static int BYTES_DOCID_LENGTH = 4;
 
     // Length in bytes of the frequency field
     public final static int BYTES_FREQUENCY_LENGTH = 4;
@@ -38,7 +38,7 @@ public class LexiconEntryConfig {
             + OFFSET_SKIPBLOCKS_LENGTH
             + NUMBER_OF_SKIPBLOCKS_LENGTH
             + OFFSET_FREQUENCIES_LENGTH
-            + BYTES_DOCID_LENGTH
+    //        + BYTES_DOCID_LENGTH
             + BYTES_FREQUENCY_LENGTH
             + POSTING_LIST_LENGTH
             + IDF_LENGTH
