@@ -18,7 +18,6 @@ import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
 
 
 
-
 public class FileWriterUtility {
 
     public void writeInvertedIndexAndLexiconToFiles(InvertedIndexBuilder invertedIndexBuilder, int blockNumber) throws FileNotFoundException {
@@ -36,7 +35,7 @@ public class FileWriterUtility {
         invertedIndexBuilder.clear();
     }
 
-    public void writeLexiconToFile(InvertedIndexBuilder invertedIndexBuilder, String outputPath) throws FileNotFoundException {
+    public void writeLexiconToFile(InvertedIndexBuilder invertedIndexBuilder, String outputPath) {
         try (RandomAccessFile lexiconFile = new RandomAccessFile(outputPath, "rw")) {
             invertedIndexBuilder.getLexicon().getLexicon().forEach((key, lexiconEntry) -> {
                 try {
@@ -114,7 +113,7 @@ public class FileWriterUtility {
         }
     }
 
-    public void writeDocumentEntryToDisk(long docId, DocumentEntry documentEntry, RandomAccessFile documentIndexFile){
+    public void writeDocumentEntryToFile(long docId, DocumentEntry documentEntry, RandomAccessFile documentIndexFile){
 
         //Fill with whitespaces to keep the length standard
         String tmp = Utils.leftpad(documentEntry.getDocNo(), DOCNO_LENGTH);

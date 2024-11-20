@@ -4,7 +4,6 @@ import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
 import it.unipi.dii.aide.mircv.model.DocumentEntry;
 import it.unipi.dii.aide.mircv.model.DocumentIndex;
-import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileWriterUtility;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -73,7 +72,7 @@ public class MainComponents {
                     // and store it inside a file.
                     DocumentEntry documentEntry = new DocumentEntry(documentAfterPreprocessing.getDocNo(),
                             documentAfterPreprocessing.getDocumentLength());
-                    fileWriterUtility.writeDocumentEntryToDisk(documentAfterPreprocessing.getDocId(), documentEntry,
+                    fileWriterUtility.writeDocumentEntryToFile(documentAfterPreprocessing.getDocId(), documentEntry,
                                                                documentIndexFile);
 
 //                    if(!isMemoryAvailable(threshold)){

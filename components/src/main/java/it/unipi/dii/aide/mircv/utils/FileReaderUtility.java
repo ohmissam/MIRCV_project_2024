@@ -92,10 +92,7 @@ public class FileReaderUtility {
     public static void readDocumentIndexFile(String documentIndexFilePath) throws IOException {
         try (RandomAccessFile documentIndexFile = new RandomAccessFile(documentIndexFilePath, "r")) {
             long fileLength = documentIndexFile.length();
-
-            // Calcola il numero totale di record nel file
-            long recordSize = DOCID_LENGTH + DOCNO_LENGTH + DOCLENGTH_LENGTH;
-            long numberOfRecords = fileLength / recordSize;
+            long numberOfRecords = fileLength / DOCUMENT_INDEX_ENTRY_LENGTH;
 
             System.out.println("[INFO] Reading DocumentIndex file... Total records: " + numberOfRecords);
 
