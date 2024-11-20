@@ -57,7 +57,6 @@ public class MainComponents {
                 documentAfterPreprocessing = DocumentPreProcessor.processDocument(line, numberOfDocuments);
 
                 if (documentAfterPreprocessing != null && documentAfterPreprocessing.getTerms().length > 0) {
-                    invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
                     //TO DO: add document to document index file
 
                     numberOfDocuments++;

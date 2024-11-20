@@ -3,13 +3,10 @@ package it.unipi.dii.aide.mircv.utils;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
 
 public class FileReaderUtility {
 
-    // Configurazione delle lunghezze dei campi nel file DocumentIndex
-    private static final int DOCID_LENGTH = 8;      // Lunghezza in byte di docId (long)
-    private static final int DOCNO_LENGTH = 20;     // Lunghezza in byte di docNo (stringa, esempio)
-    private static final int DOCLENGTH_LENGTH = 4;  // Lunghezza in byte di docLength (int)
 
     public static void main(String[] args) {
         try {
