@@ -26,11 +26,14 @@ public class MainComponents {
     public static void main(String[] args) {
         // Print the start of the process
         System.out.println("[MAIN] Starting the extraction of the dataset...");
+        File file = new File("data\\collection.tsv");
 
         // Execute the dataset extraction
-        try (InputStreamReader inputStreamReader = extractDataset(COMPRESSED_COLLECTION_PATH);
+        try (FileInputStream fileInputStream= new FileInputStream(file);
+                     //extractDataset(COMPRESSED_COLLECTION_PATH);
              RandomAccessFile documentIndexFile = new RandomAccessFile(DOCINDEX_FILE_PATH, "rw")) {
             // Create a BufferedReader to read the document line by line
+            InputStreamReader inputStreamReader=new InputStreamReader(fileInputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
 
@@ -75,25 +78,27 @@ public class MainComponents {
                     fileWriterUtility.writeDocumentEntryToFile(documentAfterPreprocessing.getDocId(), documentEntry,
                                                                documentIndexFile);
 
-//                    if(!isMemoryAvailable(threshold)){
-//                        System.out.println("[MAIN] Flushing" +blockDocuments + "documents to disk..");
-//
-//                        //Sorting the lexicon and the inverted index terms
-//                        invertedIndexBuilder.sortLexicon();
-//                        invertedIndexBuilder.sortInvertedIndex();
-//
-//                        //Write the inverted index and the lexicon in the file
-//                        fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder, blockNumber);
-//
-//                        System.out.println("[INDEXER] Block "+blockNumber+" written to disk!");
-//
-//                        //Handle the blocks' information
-//                        blockNumber++;
-//                        blockDocuments = 0;
-//
-//                        //Clear the inverted index data structure and call the garbage collector
-//                        invertedIndexBuilder.clear();
-//                    }
+
+                    if(!isMemoryAvailable(threshold)){
+                        System.out.println("[MAIN] Flushing" +blockDocuments + "documents to disk..");
+
+                        //Sorting the lexicon and the inverted index terms
+                        invertedIndexBuilder.sortLexicon();
+                        invertedIndexBuilder.sortInvertedIndex();
+
+                        //Write the inverted index and the lexicon in the file
+                        fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder, blockNumber);
+
+                        System.out.println("[INDEXER] Block "+blockNumber+" written to disk!");
+
+                        //Handle the blocks' information
+                        blockNumber++;
+                        blockDocuments = 0;
+
+                        //Clear the inverted index data structure and call the garbage collector
+                        invertedIndexBuilder.clear();
+                    }
+
                 }
             }
 
@@ -104,7 +109,7 @@ public class MainComponents {
 
             System.out.println("[MAIN] Total documents processed: " + numberOfDocuments);
             // Puoi aggiungere qui il salvataggio dell'inverted index e del lessico
-            fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder,1);
+            fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder,blockNumber);
             invertedIndexBuilder.clear();
 
         } catch (IOException e) {
