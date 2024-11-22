@@ -4,15 +4,11 @@ import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.model.DocumentEntry;
 import it.unipi.dii.aide.mircv.model.LexiconEntry;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static it.unipi.dii.aide.mircv.utils.Config.DOCIDS_BLOCK_PATH;
-import static it.unipi.dii.aide.mircv.utils.Config.FREQUENCIES_BLOCK_PATH;
-import static it.unipi.dii.aide.mircv.utils.Config.LEXICON_BLOCK_PATH;
+import static it.unipi.dii.aide.mircv.utils.Config.*;
 import static it.unipi.dii.aide.mircv.utils.LexiconEntryConfig.*;
 import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
 
@@ -131,4 +127,39 @@ public class FileWriterUtility {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Write the statistics of the execution, in particular the number of blocks written and the total number of
+     * documents parsed.
+     * @param numberOfBlocks Number of blocks written
+     * @param numberOfDocs Number of documents parsed in total
+     */
+    public void writeStatisticsToFile(int numberOfBlocks, int numberOfDocs, float avdl){
+
+        //Object used to build the lexicon line into a string
+        StringBuilder stringBuilder = new StringBuilder();
+
+        //Buffered writer used to format the output
+        BufferedWriter bufferedWriter;
+
+        try {
+            bufferedWriter = new BufferedWriter(new FileWriter(STATISTICS_PATH,false));
+
+            //build the string
+            stringBuilder
+                    .append(numberOfBlocks).append("\n")
+                    .append(numberOfDocs).append("\n")
+                    .append(Math.round(avdl)).append("\n");
+
+            //Write the string in the file
+            bufferedWriter.write(stringBuilder.toString());
+
+            //Close the writer
+            bufferedWriter.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+}
