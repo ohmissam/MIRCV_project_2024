@@ -19,4 +19,12 @@ public class DocumentEntry {
         this.docNo = docNo;
         this.docLength = docLength;
     }
+
+    @Override
+    public String toString() {
+        return "DocumentEntry{" +
+                "docNo='" + docNo + '\'' +
+                ", docLength=" + docLength +
+                '}';
+    }
 }

@@ -1,5 +1,6 @@
 # Project exclude paths
 /target/
+/data/
 /.idea/*
 /data/collection_big.tsv
 *.class

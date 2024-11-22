@@ -10,8 +10,11 @@ public class Config {
     //String for the document collection path
     public final static String COLLECTION_PATH = "data\\collection.tsv";
 
-    //String for the compressed document collection path
+    //String for the compressed small document collection path
     public final static String COMPRESSED_COLLECTION_PATH = "data\\collection_small.tar.gz";
+
+    //String for the compressed document collection path
+    public final static String TAR_COLLECTION_PATH = "data\\collection.tar.gz";
 
     //String for the path of the lexicon file
     public static final String LEXICON_FILE_PATH = "data\\Lexicon.txt";
@@ -21,6 +24,9 @@ public class Config {
 
     //String for the path of the inverted index file
     public static final String INVINDEX_FILE_PATH = "data\\InvertedIndex.txt";
+
+    //String or thw path of the statistics file
+    public static final String STATISTICS_PATH = "data\\statistics.txt";
 
     public static final String LEXICON_BLOCK_PATH = "components/src/main/resources/tmp/lexiconBlock";
 

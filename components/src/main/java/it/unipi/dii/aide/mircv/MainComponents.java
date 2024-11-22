@@ -3,7 +3,6 @@ package it.unipi.dii.aide.mircv;
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
 import it.unipi.dii.aide.mircv.model.DocumentEntry;
-import it.unipi.dii.aide.mircv.model.DocumentIndex;
 import it.unipi.dii.aide.mircv.utils.FileWriterUtility;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -13,130 +12,122 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import static it.unipi.dii.aide.mircv.utils.Config.PERCENTAGE;
-// Path of the compressed dataset
-import static it.unipi.dii.aide.mircv.utils.Config.COMPRESSED_COLLECTION_PATH;
-import static it.unipi.dii.aide.mircv.utils.Config.DOCINDEX_FILE_PATH;
+import static it.unipi.dii.aide.mircv.utils.Config.*;
 
-
+/**
+ * MainComponents class coordinates the creation of an inverted index and lexicon from a compressed dataset.
+ * It handles dataset extraction, preprocessing, memory management, and writing the intermediate results to disk.
+ */
 public class MainComponents {
-    static int blockNumber = 1;
+    static int blockNumber = 1; // Counter for the block currently being processed.
 
-
-    public static void main(String[] args) {
-        // Print the start of the process
+    public static void main(String[] args) throws IOException {
         System.out.println("[MAIN] Starting the extraction of the dataset...");
-        File file = new File("data\\collection.tsv");
 
-        // Execute the dataset extraction
-        try (FileInputStream fileInputStream= new FileInputStream(file);
-                     //extractDataset(COMPRESSED_COLLECTION_PATH);
+        // Perform dataset extraction and processing.
+        try (InputStreamReader inputStreamReader = extractDataset(TAR_COLLECTION_PATH);
              RandomAccessFile documentIndexFile = new RandomAccessFile(DOCINDEX_FILE_PATH, "rw")) {
-            // Create a BufferedReader to read the document line by line
-            InputStreamReader inputStreamReader=new InputStreamReader(fileInputStream);
+
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
 
+            // Initialize necessary components
             InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
-            DocumentIndex documentIndex = new DocumentIndex();
             FileWriterUtility fileWriterUtility = new FileWriterUtility();
-            int numberOfDocuments = 0;
-            //variable to keep track of the average length of the document
-            float avdl = 0;
-            long totalMemory = Runtime.getRuntime().totalMemory();
-
-            //Define the threshold of memory over which the index must be flushed to disk
-            long threshold = (long) (totalMemory * PERCENTAGE);
-
-            //Counter to keep the number of documents read for the current block
-            int blockDocuments = 0;
-
+            int numberOfDocuments = 0; // Total document counter
+            float avdl = 0; // Average document length tracker
+            int numberOfBlockDocuments = 0; // Counter for documents in the current block
             DocumentAfterPreprocessing documentAfterPreprocessing;
 
-            // Read the document line by line
-            while ((line = bufferedReader.readLine()) != null) {
+            // Track computation start time and memory usage
+            long begin = System.nanoTime();
+            long totalMemory = Runtime.getRuntime().totalMemory();
+            long threshold = (long) (totalMemory * PERCENTAGE); // Memory threshold for flushing to disk
 
+            System.out.printf("[MAIN] Memory threshold: %.2fMB (%.0f%% of total memory)%n",
+                    threshold / (1024.0 * 1024.0), PERCENTAGE * 100);
+
+            // Start reading and processing the dataset line by line
+            while ((line = bufferedReader.readLine()) != null) {
+                // Preprocess the document line and extract terms
                 documentAfterPreprocessing = DocumentPreProcessor.processDocument(line, numberOfDocuments);
 
                 if (documentAfterPreprocessing != null && documentAfterPreprocessing.getTerms().length > 0) {
-                    //TO DO: add document to document index file
+                    // Update average document length (avdl)
+                    avdl = (avdl * numberOfDocuments) / (numberOfDocuments + 1)
+                            + ((float) documentAfterPreprocessing.getTerms().length) / (numberOfDocuments + 1);
 
                     numberOfDocuments++;
-                    blockDocuments++;
+                    numberOfBlockDocuments++;
 
-                    //Set the docid of the current document
+                    // Assign a document ID
                     documentAfterPreprocessing.setDocId(numberOfDocuments);
 
+                    // Insert terms into the inverted index
                     invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
 
+                    // Write the document entry to the document index file
+                    DocumentEntry documentEntry = new DocumentEntry(
+                            documentAfterPreprocessing.getDocNo(),
+                            documentAfterPreprocessing.getDocumentLength()
+                    );
+                    fileWriterUtility.writeDocumentEntryToFile(
+                            documentAfterPreprocessing.getDocId(),
+                            documentEntry,
+                            documentIndexFile
+                    );
 
-                    //Insert the document index row in the document index file. It's the building of the document
-                    // index. The document index will be read from file in the future, the important is to build it
-                    // and store it inside a file.
-                    DocumentEntry documentEntry = new DocumentEntry(documentAfterPreprocessing.getDocNo(),
-                            documentAfterPreprocessing.getDocumentLength());
-                    fileWriterUtility.writeDocumentEntryToFile(documentAfterPreprocessing.getDocId(), documentEntry,
-                                                               documentIndexFile);
-
-
-                    if(!isMemoryAvailable(threshold)){
-                        System.out.println("[MAIN] Flushing" +blockDocuments + "documents to disk..");
-
-                        //Sorting the lexicon and the inverted index terms
-                        invertedIndexBuilder.sortLexicon();
-                        invertedIndexBuilder.sortInvertedIndex();
-
-                        //Write the inverted index and the lexicon in the file
-                        fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder, blockNumber);
-
-                        System.out.println("[INDEXER] Block "+blockNumber+" written to disk!");
-
-                        //Handle the blocks' information
+                    // Check memory usage and flush index if needed
+                    if (!isMemoryAvailable(threshold)) {
+                        flushIndexAndLexiconToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
                         blockNumber++;
-                        blockDocuments = 0;
-
-                        //Clear the inverted index data structure and call the garbage collector
-                        invertedIndexBuilder.clear();
+                        numberOfBlockDocuments = 0;
                     }
 
+                    // Display progress every 50,000 documents
+                    if (numberOfDocuments % 50000 == 0) {
+                        System.out.printf("[MAIN] %d documents processed in %.2fs%n",
+                                numberOfDocuments, (System.nanoTime() - begin) / 1_000_000_000.0);
+                        getMemoryUsedPercentage(); // Display memory usage stats
+                    }
                 }
             }
 
+            // Final flush for remaining documents in the last block
+            if (numberOfBlockDocuments > 0) {
+                System.out.println("[MAIN] Flushing last block...");
+                flushIndexAndLexiconToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
+            }
 
-            invertedIndexBuilder.sortLexicon();
-            invertedIndexBuilder.sortInvertedIndex();
-            System.out.println(invertedIndexBuilder.getInvertedIndex().toString());
-
-            System.out.println("[MAIN] Total documents processed: " + numberOfDocuments);
-            // Puoi aggiungere qui il salvataggio dell'inverted index e del lessico
-            fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder,blockNumber);
-            invertedIndexBuilder.clear();
+            System.out.printf("[MAIN] Processing completed. Total documents: %d. Total time: %.2fs%n",
+                    numberOfDocuments, (System.nanoTime() - begin) / 1_000_000_000.0);
 
         } catch (IOException e) {
-            System.err.println("[ERROR] An error occurred while processing the dataset: " + e.getMessage());
+            System.err.println("[ERROR] An error occurred: " + e.getMessage());
         }
     }
 
-    private static boolean isMemoryAvailable(long threshold){
-
-        //Subtract the free memory at the moment to the total memory allocated obtaining the memory used, then check
-        //if the memory used is above the threshold
-        return Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory() < threshold;
+    /**
+     * Checks if the available memory is above the defined threshold.
+     * @param threshold The memory threshold in bytes.
+     * @return True if memory usage is below the threshold, otherwise False.
+     */
+    private static boolean isMemoryAvailable(long threshold) {
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() < threshold;
     }
 
-
+    /**
+     * Extracts the dataset from a tar.gz archive and provides a reader for the extracted content.
+     * @param path Path to the tar.gz archive.
+     * @return InputStreamReader for the extracted content.
+     * @throws IOException If there are issues accessing or extracting the archive.
+     */
     private static InputStreamReader extractDataset(String path) throws IOException {
-        // Create a File object for the specified path
         File file = new File(path);
-
-        // Attempt to open the tar.gz archive
         FileInputStream fileInputStream = new FileInputStream(file);
         TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(fileInputStream));
-
-        // Read the first file from the stream
         TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
 
-        // If the file exists, return the InputStreamReader
         if (currentEntry != null) {
             System.out.println("[MAIN] Extracting file: " + currentEntry.getName());
             return new InputStreamReader(tarInput, StandardCharsets.UTF_8);
@@ -145,7 +136,40 @@ public class MainComponents {
         }
     }
 
+    /**
+     * Flushes the inverted index and lexicon to disk, sorting them first.
+     * @param fileWriterUtility Utility class for file writing operations.
+     * @param invertedIndexBuilder The builder containing the index and lexicon data.
+     * @param blockNumber Block number being processed.
+     * @param numberOfBlockDocuments Number of documents in the current block.
+     * @throws IOException If there is an issue during file writing.
+     */
+    public static void flushIndexAndLexiconToDisk(FileWriterUtility fileWriterUtility, InvertedIndexBuilder invertedIndexBuilder,
+                                                  int blockNumber, int numberOfBlockDocuments) throws IOException {
+        System.out.printf("[FILE WRITER] Flushing block %d (%d documents) to disk...%n", blockNumber, numberOfBlockDocuments);
 
+        // Sort and write index and lexicon to disk
+        invertedIndexBuilder.sortLexicon();
+        invertedIndexBuilder.sortInvertedIndex();
+        fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder, blockNumber);
 
+        System.out.printf("[FILE WRITER] Block %d successfully written.%n", blockNumber);
+
+        // Clear memory-intensive data structures
+        invertedIndexBuilder.clear();
+    }
+
+    /**
+     * Outputs memory usage and returns the percentage of memory currently used.
+     * @return The percentage of memory used.
+     */
+    private static double getMemoryUsedPercentage() {
+        Runtime rt = Runtime.getRuntime();
+        long totalMem = rt.totalMemory();
+        long usedMem = totalMem - rt.freeMemory();
+        double usedPercentage = 100.0 * usedMem / totalMem;
+
+        System.out.printf("[MEMORY] Used memory: %.2f%% of total allocated%n", usedPercentage);
+        return usedPercentage;
+    }
 }
-

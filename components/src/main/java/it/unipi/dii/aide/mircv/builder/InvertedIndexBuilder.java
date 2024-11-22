@@ -20,8 +20,6 @@ import static it.unipi.dii.aide.mircv.model.LexiconEntry.*;
 * */
 
 public class InvertedIndexBuilder {
-
-
     Lexicon lexicon;
     InvertedIndex invertedIndex;
 

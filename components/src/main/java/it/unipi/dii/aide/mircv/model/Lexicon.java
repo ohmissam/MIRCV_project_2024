@@ -1,11 +1,7 @@
 package it.unipi.dii.aide.mircv.model;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Lexicon {
 
