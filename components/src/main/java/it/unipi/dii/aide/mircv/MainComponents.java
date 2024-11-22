@@ -97,9 +97,9 @@ public class MainComponents {
             if (numberOfBlockDocuments > 0) {
                 System.out.println("[MAIN] Flushing last block...");
                 flushIndexAndLexiconToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
-                //Write the blocks statistics
                 fileWriterUtility.writeStatisticsToFile(blockNumber, numberOfDocuments, avdl);
                 System.out.println("[MAIN] Statistics of the blocks written to disk");
+
             }
             else {
                 //Write the blocks statistics
