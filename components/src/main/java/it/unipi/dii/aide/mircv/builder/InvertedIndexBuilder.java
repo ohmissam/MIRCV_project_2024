@@ -34,30 +34,46 @@ public class InvertedIndexBuilder {
     }
 
     public void insertDocument(DocumentAfterPreprocessing documentAfterPreprocessing) {
-        Long docId = documentAfterPreprocessing.getDocId();
+        long docId = documentAfterPreprocessing.getDocId();
 
         for (String term : documentAfterPreprocessing.getTerms()) {
+
 
             // if the term is already present in the lexicon
             if (lexicon.getLexicon().containsKey(term)) {
                 // get the list of the postings of the term
                 PostingList postingList = invertedIndex.getInvertedIndex().get(term);
-
+                //Flag to set if the doc id's posting is present in the posting list of the term
+                boolean found = false;
                 // Check if a posting already exists for the current docId
-                if (postingList.getPostingList().containsKey(docId)) {
-                    // If it exists, increment the term frequency for this docId
-                    postingList.incrementTermFrequency(docId);
-                } else {
-                    // Otherwise, add a new posting for the docId with an initial frequency of 1
-                    postingList.getPostingList().put(docId, 1);
+                //Iterate through the posting
+                for(Posting p : postingList.getPostingList()) {
+
+                    //If the doc id is present, increment the frequency and terminate the loop
+                    if (p.getDocId() == documentAfterPreprocessing.getDocId()) {
+
+                        //Increment the frequency of the doc id
+                        p.incrementFrequency();
+
+                        found = true;
+                        break;
+                    }
                 }
+                    //If the posting of the document is not present in the posting list, it must be added
+                    if (!found) {
+
+                        //Posting added to the posting list of the term
+                        postingList.getPostingList().add(new Posting(documentAfterPreprocessing.getDocId(), 1));
+                    }
+
             } else {
                 LexiconEntry lexiconEntry = new LexiconEntry();
                 // If the term is not present in the lexicon
                 lexicon.getLexicon().put(term, lexiconEntry);
 
                 // Create a new posting list with the current docId
-                PostingList postingsList = new PostingList(docId, 1);
+                Posting posting = new Posting(docId, 1);
+                PostingList postingsList = new PostingList(posting);
 
                 // Insert the posting list into the inverted index
                 invertedIndex.getInvertedIndex().put(term, postingsList);

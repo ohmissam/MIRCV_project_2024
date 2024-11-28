@@ -59,10 +59,10 @@ public class FileWriterUtility {
                 int offsetDocId = currentOffsetDocId.get();
                 int offsetFrequency = currentOffsetFrequency.get();
 
-                postingList.getPostingList().forEach((docId, freq) -> {
+                postingList.getPostingList().forEach(posting -> {
                     //Create the buffers for each element to be written
-                    byte[] postingDocId = ByteBuffer.allocate(8).putLong(docId).array();
-                    byte[] postingFreq = ByteBuffer.allocate(4).putInt(freq).array();
+                    byte[] postingDocId = ByteBuffer.allocate(8).putLong(posting.getDocId()).array();
+                    byte[] postingFreq = ByteBuffer.allocate(4).putInt(posting.getFrequency()).array();
 
                     try {
                         //Append each element to the file, each one adds 4 bytes to the file

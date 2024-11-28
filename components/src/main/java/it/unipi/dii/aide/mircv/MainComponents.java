@@ -25,7 +25,7 @@ public class MainComponents {
         System.out.println("[MAIN] Starting the extraction of the dataset...");
 
         // Perform dataset extraction and processing.
-        try (InputStreamReader inputStreamReader = extractDataset(TAR_COLLECTION_PATH);
+        try (InputStreamReader inputStreamReader = extractDataset(COMPRESSED_COLLECTION_PATH);
              RandomAccessFile documentIndexFile = new RandomAccessFile(DOCINDEX_FILE_PATH, "rw")) {
 
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);

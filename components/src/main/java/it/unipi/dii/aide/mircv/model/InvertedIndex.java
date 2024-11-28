@@ -18,18 +18,22 @@ public class InvertedIndex {
             then we add a new posting (with tf =1)
     */
     // vedere se è effettivamente necessaria
-    public void setPosting(String term, Long docId) {
-        PostingList postingList = invertedIndex.get(term);
-        if(postingList == null){
-            invertedIndex.put(term, new PostingList(docId, 1));
-        }
-        else if(postingList.getPostingList().containsKey(docId)) {
-            postingList.incrementTermFrequency(docId);
-        }
-        else {
-            postingList.getPostingList().put(docId,1); // l'1 è a caso
-        }
-    }
+//    public void setPosting(String term, Long docId) {
+//        PostingList postingList = invertedIndex.get(term);
+//        if(postingList == null){
+//            Posting posting = new Posting(docId, 1);
+//            invertedIndex.put(term, new PostingList(posting));
+//        }
+//
+//        else if(Arrays.asList(postingList.getPostingList()).contains(new Posting(docId))) {
+//            //incrementa frequenza del posting relativo al docID
+//            //int index = Arrays.asList(postingList.getPostingList()).indexOf(docId);
+//        }
+//        else {
+//
+//            //postingList.getPostingList().put(docId,1); // l'1 è a caso
+//        }
+//    }
 
     //public boolean containsKey(String term) {
     //    return invertedIndex.containsKey(term);
@@ -45,7 +49,7 @@ public class InvertedIndex {
 
     public int getPostingListLength(String term){
         PostingList postingList = invertedIndex.get(term);
-        return postingList.length(); // fatto length-1 perchè la prima volta che incontriamo il term in preProcess faccio frequenza = 1 in setPosting()
+        return postingList.getPostingList().size(); // fatto length-1 perchè la prima volta che incontriamo il term in preProcess faccio frequenza = 1 in setPosting()
     }
 
     public String toString() {

@@ -11,21 +11,21 @@ public class FileReaderUtility {
 
     public static void main(String[] args) {
         try {
-//            System.out.println("[FILE READER] Reading lexicon file...");
-            System.out.println("[FILE READER] Reading block 32");
-            readLexiconFile(Config.LEXICON_BLOCK_PATH + "32.txt");
+            System.out.println("[FILE READER] Reading lexicon file...");
+            System.out.println("[FILE READER] Reading block 1");
+            readLexiconFile(Config.LEXICON_BLOCK_PATH + "1.txt");
 
 
 //            // Reading and printing the inverted index files
-//            System.out.println("[FILE READER] Reading inverted index files...");
-//            System.out.println("[FILE READER] Reading inverted index files of Block 1...");
-//            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "1.txt", Config.FREQUENCIES_BLOCK_PATH + "1.txt");
+            System.out.println("[FILE READER] Reading inverted index files...");
+            System.out.println("[FILE READER] Reading inverted index files of Block 1...");
+            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "1.txt", Config.FREQUENCIES_BLOCK_PATH + "1.txt");
 //            System.out.println("[FILE READER] Reading inverted index files of Block 2...");
 //            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "2.txt", Config.FREQUENCIES_BLOCK_PATH + "2.txt");
 
             // Reading and printing the document index file
-            System.out.println("[FILE READER] Reading document index file...");
-            readDocumentIndexFile(Config.DOCINDEX_FILE_PATH);
+//            System.out.println("[FILE READER] Reading document index file...");
+//            readDocumentIndexFile(Config.DOCINDEX_FILE_PATH);
 
         } catch (IOException e) {
             System.err.println("[ERROR] An error occurred while reading the files: " + e.getMessage());
