@@ -1,10 +1,10 @@
 package it.unipi.dii.aide.mircv.model;
 
 public class MergedLexiconEntry {
-    private String term;
-    private long offsetDocId;
-    private long offsetFrequency;
-    private int postingListLength;
+    private final String term;
+    private final long offsetDocId;
+    private final long offsetFrequency;
+    private final int postingListLength;
     private final double inverseDocumentFrequency;
     private final int docIdsBytesLength;
     private final int frequenciesBytesLength;

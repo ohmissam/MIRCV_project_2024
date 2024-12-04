@@ -5,9 +5,9 @@ import java.util.Arrays;
 public class DocumentAfterPreprocessing {
 
     private long docId;             // Unique identifier for the document
-    private String docNo;           // Document number
-    private String[] terms;         // Array of terms after preprocessing
-    private int documentLength;      // Length of the terms array
+    private final String docNo;           // Document number
+    private final String[] terms;         // Array of terms after preprocessing
+    private final int documentLength;      // Length of the terms array
 
 
     // Constructor that initializes with document ID, document number, and terms

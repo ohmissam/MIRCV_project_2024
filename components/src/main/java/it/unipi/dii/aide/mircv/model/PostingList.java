@@ -4,22 +4,16 @@ import java.util.*;
 
 public class PostingList {
     //String->docId
-    private ArrayList<Posting> postingList = new ArrayList<>();
+    private final ArrayList<Posting> postingList = new ArrayList<>();
 
     public PostingList(Posting posting) {
         this.postingList.add(posting);
-    }
-
-    public PostingList() {
     }
 
     public ArrayList<Posting> getPostingList() {
         return postingList;
     }
 
-    public void setPostingList(ArrayList<Posting> postingList) {
-        this.postingList = postingList;
-    }
 
     @Override
     public String toString() {

@@ -12,13 +12,6 @@ public class BlockLexicon {
         lexicon = new HashMap<>();
     }
 
-    //public Lexicon(HashMap<String, LexiconEntry> lexicon) {
-    //    this.lexicon = lexicon;
-    //}
-
-    //public void setLexicon(HashMap<String, LexiconEntry> lexicon) {
-    //    this.lexicon = lexicon;
-    //}
     public  HashMap<String, BlockLexiconEntry> getLexicon() {
         return lexicon;
     }

@@ -10,46 +10,12 @@ public class InvertedIndex {
         invertedIndex = new HashMap<>();
     }
 
-    /*
-    IF there are still no postings for "term" then is created the one related to the "docId",
-    ELSE IF the posting related to the "docId" (defined in preProcessing) exists
-        then just increase the termFrequency (in that doc)
-        ELSE, i.e., the posting with the current doc doesn't exist (means we are in a new doc)
-            then we add a new posting (with tf =1)
-    */
-    // vedere se è effettivamente necessaria
-//    public void setPosting(String term, Long docId) {
-//        PostingList postingList = invertedIndex.get(term);
-//        if(postingList == null){
-//            Posting posting = new Posting(docId, 1);
-//            invertedIndex.put(term, new PostingList(posting));
-//        }
-//
-//        else if(Arrays.asList(postingList.getPostingList()).contains(new Posting(docId))) {
-//            //incrementa frequenza del posting relativo al docID
-//            //int index = Arrays.asList(postingList.getPostingList()).indexOf(docId);
-//        }
-//        else {
-//
-//            //postingList.getPostingList().put(docId,1); // l'1 è a caso
-//        }
-//    }
-
-    //public boolean containsKey(String term) {
-    //    return invertedIndex.containsKey(term);
-    //}
-
     public HashMap<String, PostingList> getInvertedIndex() {
         return invertedIndex;
     }
 
     public void setInvertedIndex(HashMap<String, PostingList> invertedIndex) {
         this.invertedIndex = invertedIndex;
-    }
-
-    public int getPostingListLength(String term){
-        PostingList postingList = invertedIndex.get(term);
-        return postingList.getPostingList().size(); // fatto length-1 perchè la prima volta che incontriamo il term in preProcess faccio frequenza = 1 in setPosting()
     }
 
     public String toString() {

@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static it.unipi.dii.aide.mircv.utils.Config.*;
-import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.*;
 import static it.unipi.dii.aide.mircv.utils.MergedLexiconEntryConfig.*;
 import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
 import static it.unipi.dii.aide.mircv.utils.SkipBlockConfig.*;

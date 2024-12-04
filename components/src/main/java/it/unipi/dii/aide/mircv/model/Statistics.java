@@ -9,8 +9,7 @@ import static it.unipi.dii.aide.mircv.utils.Config.STATISTICS_PATH;
 public class Statistics {
     private int numberOfBlocks;
     private int numberOfDocuments;
-    // Average document length tracker
-    private int avdl;
+    private int avdl; //(average number of terms per document)
 
     private Statistics() {
         try {

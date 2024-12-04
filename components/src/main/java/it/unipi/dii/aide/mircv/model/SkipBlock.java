@@ -1,8 +1,5 @@
 package it.unipi.dii.aide.mircv.model;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 
 /**
  * Class that holds the information about a skip block.
