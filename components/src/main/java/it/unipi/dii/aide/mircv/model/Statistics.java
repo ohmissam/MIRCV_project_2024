@@ -12,7 +12,7 @@ public class Statistics {
     // Average document length tracker
     private int avdl;
 
-    public Statistics() {
+    private Statistics() {
         try {
             //creates a new file instance
             File file = new File(STATISTICS_PATH);
@@ -31,7 +31,7 @@ public class Statistics {
             if ((line = br.readLine()) != null) {
                 numberOfDocuments = Integer.parseInt(line);
             }
-            if ((line = br.readLine())!= null) {
+            if ((line = br.readLine()) != null) {
                 avdl = Integer.parseInt(line);
             }
             fr.close();
@@ -41,9 +41,21 @@ public class Statistics {
         }
     }
 
+    public static Statistics readStatistics() {
+        return new Statistics();
+    }
 
+    public int getNumberOfDocuments() {
+        return numberOfDocuments;
+    }
 
+    public int getAvdl() {
+        return avdl;
+    }
 
+    public int getNumberOfBlocks() {
+        return numberOfBlocks;
+    }
 
     @Override
     public String toString() {

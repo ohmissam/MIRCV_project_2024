@@ -1,8 +1,9 @@
 package it.unipi.dii.aide.mircv;
 
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
+import it.unipi.dii.aide.mircv.merger.IndexMerger;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
-import it.unipi.dii.aide.mircv.model.DocumentEntry;
+import it.unipi.dii.aide.mircv.model.DocumentIndexEntry;
 import it.unipi.dii.aide.mircv.utils.FileWriterUtility;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -15,41 +16,65 @@ import java.nio.charset.StandardCharsets;
 import static it.unipi.dii.aide.mircv.utils.Config.*;
 
 /**
- * MainComponents class coordinates the creation of an inverted index and lexicon from a compressed dataset.
- * It handles dataset extraction, preprocessing, memory management, and writing the intermediate results to disk.
+ * MainComponents class is responsible for extracting a dataset, preprocessing documents,
+ * building the inverted index and lexicon, and managing memory usage during the processing.
+ * After processing blocks of documents, it merges them into the final index.
  */
 public class MainComponents {
-    static int blockNumber = 1; // Counter for the block currently being processed.
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         System.out.println("[MAIN] Starting the extraction of the dataset...");
+        System.out.println("[MAIN] Stemming and stopword removal are " + (ENABLE_STEMMING_AND_STOPWORD_REMOVAL ? "ENABLED" : "DISABLED"));
 
-        // Perform dataset extraction and processing.
-        try (InputStreamReader inputStreamReader = extractDataset(COMPRESSED_COLLECTION_PATH);
+
+        // Step 1: Extract the dataset and process each document
+        processDocuments(SAMPLED_COLLECTION_PATH);
+
+        // Step 2: Start the block merging phase
+        System.out.println("[MAIN] Starting the merging of the blocks...");
+        System.out.println("[MAIN] Compression is " + (ENABLE_COMPRESSION ? "ENABLED" : "DISABLED"));
+        System.out.println("[MAIN] Debug Mode is " + (IS_DEBUG_MODE ? "ENABLED" : "DISABLED"));
+
+        // Track the start time of the merging phase
+        long mergeBegin = System.nanoTime();
+        // Perform the merging operation
+        IndexMerger.merge();
+        // Track and display the time taken for the merging phase
+        System.out.printf("[MAIN] Merging completed in %.2fs%n", (System.nanoTime() - mergeBegin) / 1_000_000_000.0);
+    }
+
+    /**
+     * This method processes the documents from the dataset, builds the inverted index and lexicon,
+     * and handles memory flushing and document indexing.
+     *
+     */
+    private static void processDocuments(String datasetPath) {
+        try (InputStreamReader inputStreamReader = extractDataset(datasetPath);
              RandomAccessFile documentIndexFile = new RandomAccessFile(DOCINDEX_FILE_PATH, "rw")) {
 
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
 
-            // Initialize necessary components
+            // Initialize necessary components for index building and file writing
             InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder();
             FileWriterUtility fileWriterUtility = new FileWriterUtility();
-            int numberOfDocuments = 0; // Total document counter
-            float avdl = 0; // Average document length tracker
-            int numberOfBlockDocuments = 0; // Counter for documents in the current block
+            int blockNumber = 1; // Counter for the current block being processed.
+            int numberOfDocuments = 0; // Counter for total number of documents processed
+            float avdl = 0; // Average document length (avdl)
+            int numberOfBlockDocuments = 0; // Counter for the number of documents in the current block
             DocumentAfterPreprocessing documentAfterPreprocessing;
 
-            // Track computation start time and memory usage
+            // Track computation start time and set memory usage threshold
             long begin = System.nanoTime();
             long totalMemory = Runtime.getRuntime().totalMemory();
-            long threshold = (long) (totalMemory * PERCENTAGE); // Memory threshold for flushing to disk
+            long threshold = (long) (totalMemory * PERCENTAGE); // Memory threshold to trigger flushing
 
             System.out.printf("[MAIN] Memory threshold: %.2fMB (%.0f%% of total memory)%n",
                     threshold / (1024.0 * 1024.0), PERCENTAGE * 100);
 
-            // Start reading and processing the dataset line by line
+            // Process each document in the dataset
             while ((line = bufferedReader.readLine()) != null) {
-                // Preprocess the document line and extract terms
+                // Preprocess the document line and extract terms for indexing
                 documentAfterPreprocessing = DocumentPreProcessor.processDocument(line, numberOfDocuments);
 
                 if (documentAfterPreprocessing != null && documentAfterPreprocessing.getTerms().length > 0) {
@@ -63,54 +88,54 @@ public class MainComponents {
                     // Assign a document ID
                     documentAfterPreprocessing.setDocId(numberOfDocuments);
 
-                    // Insert terms into the inverted index
+                    // Insert the document's terms into the inverted index
                     invertedIndexBuilder.insertDocument(documentAfterPreprocessing);
 
-                    // Write the document entry to the document index file
-                    DocumentEntry documentEntry = new DocumentEntry(
+                    // Create and write the document entry (ID and length) to the document index file
+                    DocumentIndexEntry documentIndexEntry = new DocumentIndexEntry(
                             documentAfterPreprocessing.getDocNo(),
                             documentAfterPreprocessing.getDocumentLength()
                     );
                     fileWriterUtility.writeDocumentEntryToFile(
                             documentAfterPreprocessing.getDocId(),
-                            documentEntry,
+                            documentIndexEntry,
                             documentIndexFile
                     );
 
-                    // Check memory usage and flush index if needed
+                    // Check if memory usage exceeds threshold and flush if necessary
                     if (!isMemoryAvailable(threshold)) {
-                        flushIndexAndLexiconToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
+                        sortAndFlushIndexAndLexiconBlockToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
                         blockNumber++;
                         numberOfBlockDocuments = 0;
                     }
 
-                    // Display progress every 50,000 documents
+                    // Display progress after processing every 50,000 documents
                     if (numberOfDocuments % 50000 == 0) {
                         System.out.printf("[MAIN] %d documents processed in %.2fs%n",
                                 numberOfDocuments, (System.nanoTime() - begin) / 1_000_000_000.0);
-                        getMemoryUsedPercentage(); // Display memory usage stats
+                        printMemoryUsedPercentage(); // Output memory usage statistics
                     }
                 }
             }
 
-            // Final flush for remaining documents in the last block
+            // Final flush for any remaining documents in the last block
             if (numberOfBlockDocuments > 0) {
                 System.out.println("[MAIN] Flushing last block...");
-                flushIndexAndLexiconToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
+                sortAndFlushIndexAndLexiconBlockToDisk(fileWriterUtility, invertedIndexBuilder, blockNumber, numberOfBlockDocuments);
                 fileWriterUtility.writeStatisticsToFile(blockNumber, numberOfDocuments, avdl);
-                System.out.println("[MAIN] Statistics of the blocks written to disk");
-
-            }
-            else {
-                //Write the blocks statistics
-                fileWriterUtility.writeStatisticsToFile(blockNumber-1, numberOfDocuments, avdl);
-                System.out.println("[MAIN] Statistics of the blocks written to disk");
+                System.out.println("[MAIN] Block statistics written to disk");
+            } else {
+                // Write statistics for the final block if no documents remain
+                fileWriterUtility.writeStatisticsToFile(blockNumber - 1, numberOfDocuments, avdl);
+                System.out.println("[MAIN] Block statistics written to disk");
             }
 
+            // Print processing completion stats
             System.out.printf("[MAIN] Processing completed. Total documents: %d. Total time: %.2fs%n",
                     numberOfDocuments, (System.nanoTime() - begin) / 1_000_000_000.0);
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.err.println("[ERROR] An error occurred: " + e.getMessage());
         }
     }
@@ -125,7 +150,7 @@ public class MainComponents {
     }
 
     /**
-     * Extracts the dataset from a tar.gz archive and provides a reader for the extracted content.
+     * Extracts the dataset from a tar.gz archive and returns an InputStreamReader for the extracted content.
      * @param path Path to the tar.gz archive.
      * @return InputStreamReader for the extracted content.
      * @throws IOException If there are issues accessing or extracting the archive.
@@ -145,39 +170,37 @@ public class MainComponents {
     }
 
     /**
-     * Flushes the inverted index and lexicon to disk, sorting them first.
+     * Sorts the inverted index and lexicon and flushes them to disk.
+     * This method is called when memory usage exceeds the threshold.
      * @param fileWriterUtility Utility class for file writing operations.
-     * @param invertedIndexBuilder The builder containing the index and lexicon data.
-     * @param blockNumber Block number being processed.
-     * @param numberOfBlockDocuments Number of documents in the current block.
+     * @param invertedIndexBuilder The builder containing the inverted index and lexicon data.
+     * @param blockNumber Block number currently being processed.
+     * @param numberOfBlockDocuments Number of documents processed in the current block.
      * @throws IOException If there is an issue during file writing.
      */
-    public static void flushIndexAndLexiconToDisk(FileWriterUtility fileWriterUtility, InvertedIndexBuilder invertedIndexBuilder,
-                                                  int blockNumber, int numberOfBlockDocuments) throws IOException {
+    public static void sortAndFlushIndexAndLexiconBlockToDisk(FileWriterUtility fileWriterUtility, InvertedIndexBuilder invertedIndexBuilder,
+                                                              int blockNumber, int numberOfBlockDocuments) throws IOException {
         System.out.printf("[FILE WRITER] Flushing block %d (%d documents) to disk...%n", blockNumber, numberOfBlockDocuments);
 
-        // Sort and write index and lexicon to disk
+        // Sort and write the lexicon and inverted index to disk
         invertedIndexBuilder.sortLexicon();
         invertedIndexBuilder.sortInvertedIndex();
-        fileWriterUtility.writeInvertedIndexAndLexiconToFiles(invertedIndexBuilder, blockNumber);
+        fileWriterUtility.writeInvertedIndexAndLexiconBlockToFiles(invertedIndexBuilder, blockNumber);
 
         System.out.printf("[FILE WRITER] Block %d successfully written.%n", blockNumber);
 
-        // Clear memory-intensive data structures
+        // Clear memory-intensive data structures from the builder
         invertedIndexBuilder.clear();
     }
 
     /**
-     * Outputs memory usage and returns the percentage of memory currently used.
-     * @return The percentage of memory used.
+     * Outputs memory usage and calculates the percentage of memory currently used.
      */
-    private static double getMemoryUsedPercentage() {
+    private static void printMemoryUsedPercentage() {
         Runtime rt = Runtime.getRuntime();
         long totalMem = rt.totalMemory();
         long usedMem = totalMem - rt.freeMemory();
-        double usedPercentage = 100.0 * usedMem / totalMem;
-
-        System.out.printf("[MEMORY] Used memory: %.2f%% of total allocated%n", usedPercentage);
-        return usedPercentage;
+        double usedPercentage = ((double) usedMem / totalMem) * 100;
+        System.out.printf("[MEMORY] Used memory: %.2f%% of total memory.%n", usedPercentage);
     }
 }

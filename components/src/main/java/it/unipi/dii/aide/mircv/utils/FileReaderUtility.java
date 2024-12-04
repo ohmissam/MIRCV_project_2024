@@ -1,190 +1,156 @@
 package it.unipi.dii.aide.mircv.utils;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Map;
+
+import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.TERM_LENGTH;
 import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
 
 public class FileReaderUtility {
+    /**
+     * Reads the posting list's ids from the given inverted index file, starting from offset it will read the number
+     * of docIds indicated by the given length parameter.
+     * @param randomAccessFileDocIds RandomAccessFile of the docIds block file
+     * @param offset offset starting from where to read the posting list
+     * @param length length of the posting list to be read
+     */
+    public static ArrayList<Long> readPostingListDocIds(RandomAccessFile randomAccessFileDocIds, long offset, int length) {
 
-    public static void main(String[] args) {
+        //ArrayList to store the posting list's ids
+        ArrayList<Long> list = new ArrayList<>();
+
         try {
-            System.out.println("[FILE READER] Reading lexicon file...");
-            System.out.println("[FILE READER] Reading block 1");
-            readLexiconFile(Config.LEXICON_BLOCK_PATH + "1.txt");
 
-
-//            // Reading and printing the inverted index files
-            System.out.println("[FILE READER] Reading inverted index files...");
-            System.out.println("[FILE READER] Reading inverted index files of Block 1...");
-            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "1.txt", Config.FREQUENCIES_BLOCK_PATH + "1.txt");
-//            System.out.println("[FILE READER] Reading inverted index files of Block 2...");
-//            readInvertedIndexFile(Config.DOCIDS_BLOCK_PATH + "2.txt", Config.FREQUENCIES_BLOCK_PATH + "2.txt");
-
-            // Reading and printing the document index file
-//            System.out.println("[FILE READER] Reading document index file...");
-//            readDocumentIndexFile(Config.DOCINDEX_FILE_PATH);
+            //Set the file pointer to the start of the posting list
+            randomAccessFileDocIds.seek(offset);
 
         } catch (IOException e) {
-            System.err.println("[ERROR] An error occurred while reading the files: " + e.getMessage());
+            System.err.println("[ReadPostingListDocIds] Exception during seek");
+            throw new RuntimeException(e);
+        }
+
+        //Read the docIds from the file
+        for(int i = 0; i < length; i ++) {
+            try {
+
+                //Read the docId and add it to the list
+                list.add(randomAccessFileDocIds.readLong());
+
+            } catch (IOException e) {
+                System.err.println("[ReadPostingListDocIds] Exception during read");
+                throw new RuntimeException(e);
+            }
+        }
+
+        //Return the list
+        return list;
+    }
+
+    /**
+     * Reads the posting list's frequencies from the given inverted index file, starting from offset it will read the
+     * number of frequencies indicated by the given length parameter.
+     * @param randomAccessFileFrequencies RandomAccessFile of the frequencies block file
+     * @param offset offset starting from where to read the posting list
+     * @param length length of the posting list to be read
+     */
+    public static ArrayList<Integer> readPostingListFrequencies(RandomAccessFile randomAccessFileFrequencies, long offset, int length) {
+
+        //ArrayList to store the posting list's frequencies
+        ArrayList<Integer> list = new ArrayList<>();
+
+        try {
+
+            //Set the file pointer to the start of the posting list
+            randomAccessFileFrequencies.seek(offset);
+
+        } catch (IOException e) {
+            System.err.println("[ReadPostingListFrequencies] Exception during seek");
+            throw new RuntimeException(e);
+        }
+
+        //Read the frequencies from the file
+        for(int i = 0; i < length; i ++) {
+            try {
+
+                //Read the frequency and add it to the list
+                list.add(randomAccessFileFrequencies.readInt());
+
+            } catch (IOException e) {
+                System.err.println("[ReadPostingListFrequencies] Exception during read");
+                throw new RuntimeException(e);
+            }
+        }
+
+        //Return the list
+        return list;
+    }
+
+    /**
+     * Reads the next lexicon entry from the given lexicon block file, starting from offset it will read the first 60
+     * bytes, then if resetOffset is true, it will reset the offset to the value present ate the beginning, otherwise it
+     * will keep the cursor as it is after the read of the entry.
+     * @param randomAccessFileLexicon RandomAccessFile of the lexicon block file
+     * @param offset offset starting from where to read the lexicon entry
+     */
+    public static Map.Entry<String, BlockLexiconEntry> readNextBlockLexiconEntry(RandomAccessFile randomAccessFileLexicon, int offset) {
+
+        //Array of bytes in which put the term
+        byte[] termBytes = new byte[TERM_LENGTH]; //48 bytes
+
+        //String containing the term
+        String term;
+
+        //LexiconEntry containing the term information to be returned
+        BlockLexiconEntry blockLexiconEntry;
+
+        try {
+            //Set the file pointer to the start of the lexicon entry
+            randomAccessFileLexicon.seek(offset);
+
+            //Read the first 48 containing the term
+            randomAccessFileLexicon.readFully(termBytes, 0, TERM_LENGTH);
+
+            //Convert the bytes to a string and trim it
+            term = new String(termBytes, Charset.defaultCharset()).trim();
+
+            //Instantiate the LexiconEntry object reading the next 3 integers from the file
+            blockLexiconEntry = new BlockLexiconEntry(randomAccessFileLexicon.readLong(), randomAccessFileLexicon.readLong(), randomAccessFileLexicon.readInt());
+
+            return new AbstractMap.SimpleEntry<>(term, blockLexiconEntry);
+
+        } catch (IOException e) {
+            //System.err.println("[ReadNextTermInfo] EOF reached while reading the next lexicon entry");
+            return null;
         }
     }
 
-    public static void readLexiconFile(String filePath) throws IOException {
-        try (RandomAccessFile lexiconFile = new RandomAccessFile(filePath, "r")) {
-            long fileLength = lexiconFile.length();
-            int count = 0;
-            int first10Count = 0;
-            List<String> last10Entries = new ArrayList<>();
+    /**
+     * Read from the document index the document index entry related to the given doc id
+     * @param documentIndexFile random access file containing the document index
+     * @param docId document id of which we want to retrieve the entry
+     * @return the document index entry associated to the doc id
+     */
+    public static int readDocLenFromDisk(RandomAccessFile documentIndexFile, long docId){
 
-            // Print first 10 entries
-            System.out.println("\nFirst 10 entries:");
+        //Accumulator for the current offset in the file
+        long offset = (docId - 1)*DOCUMENT_INDEX_ENTRY_LENGTH + DOCID_LENGTH + DOCNO_LENGTH;
 
-            while (lexiconFile.getFilePointer() < fileLength && first10Count < 10) {
-                // Read the term (term) and decode it
-                byte[] termBytes = new byte[LexiconEntryConfig.TERM_LENGTH];
-                lexiconFile.read(termBytes);
-                String term = new String(termBytes).trim(); // Remove any trailing spaces
+        try {
+            //Move to the correct offset
+            documentIndexFile.seek(offset);
 
-                // Read and decode the offset docId and frequency
-                byte[] offsetDocIdBytes = new byte[LexiconEntryConfig.OFFSET_DOCIDS_LENGTH];
-                lexiconFile.read(offsetDocIdBytes);
-                long offsetDocId = ByteBuffer.wrap(offsetDocIdBytes).getLong();
+            //Read the length of the document, 4 bytes starting from the offset
+            return documentIndexFile.readInt();
 
-                byte[] offsetFrequencyBytes = new byte[LexiconEntryConfig.OFFSET_FREQUENCIES_LENGTH];
-                lexiconFile.read(offsetFrequencyBytes);
-                long offsetFrequency = ByteBuffer.wrap(offsetFrequencyBytes).getLong();
-
-                // Read and decode the length of the posting list
-                byte[] postingListLengthBytes = new byte[LexiconEntryConfig.POSTING_LIST_LENGTH];
-                lexiconFile.read(postingListLengthBytes);
-                int postingListLength = ByteBuffer.wrap(postingListLengthBytes).getInt();
-
-                // Create a string to store the lexicon entry
-                String entry = "Term: " + term + "\n" +
-                        "OffsetDocId: " + offsetDocId + "\n" +
-                        "OffsetFrequency: " + offsetFrequency + "\n" +
-                        "PostingListLength: " + postingListLength + "\n" +
-                        "--------------------------------";
-
-                // Print the first 10 entries
-                System.out.println(entry);
-                first10Count++;
-                count++;  // Count the total number of entries
-            }
-
-            // Now, go back and read all remaining entries to gather the last 10
-            List<String> allEntries = new ArrayList<>();
-            while (lexiconFile.getFilePointer() < fileLength) {
-                // Read the term (term) and decode it
-                byte[] termBytes = new byte[LexiconEntryConfig.TERM_LENGTH];
-                lexiconFile.read(termBytes);
-                String term = new String(termBytes).trim(); // Remove any trailing spaces
-
-                // Read and decode the offset docId and frequency
-                byte[] offsetDocIdBytes = new byte[LexiconEntryConfig.OFFSET_DOCIDS_LENGTH];
-                lexiconFile.read(offsetDocIdBytes);
-                long offsetDocId = ByteBuffer.wrap(offsetDocIdBytes).getLong();
-
-                byte[] offsetFrequencyBytes = new byte[LexiconEntryConfig.OFFSET_FREQUENCIES_LENGTH];
-                lexiconFile.read(offsetFrequencyBytes);
-                long offsetFrequency = ByteBuffer.wrap(offsetFrequencyBytes).getLong();
-
-                // Read and decode the length of the posting list
-                byte[] postingListLengthBytes = new byte[LexiconEntryConfig.POSTING_LIST_LENGTH];
-                lexiconFile.read(postingListLengthBytes);
-                int postingListLength = ByteBuffer.wrap(postingListLengthBytes).getInt();
-
-                // Store the lexicon entry as a string
-                String entry = "Term: " + term + "\n" +
-                        "OffsetDocId: " + offsetDocId + "\n" +
-                        "OffsetFrequency: " + offsetFrequency + "\n" +
-                        "PostingListLength: " + postingListLength + "\n" +
-                        "--------------------------------";
-
-                allEntries.add(entry);
-                count++;  // Count the total number of entries
-            }
-
-            // Print the last 10 entries
-            System.out.println("\nLast 10 entries:");
-            for (int i = Math.max(0, allEntries.size() - 10); i < allEntries.size(); i++) {
-                System.out.println(allEntries.get(i));
-            }
-
-            // Print the total count of entries
-            System.out.println("\nTotal number of lexicon entries: " + count);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
     }
-
-
-    // Method to read and print the content of the inverted index files
-    public static void readInvertedIndexFile(String docIdsFilePath, String frequenciesFilePath) throws IOException {
-        try (
-                RandomAccessFile docIdFile = new RandomAccessFile(docIdsFilePath, "r");
-                RandomAccessFile frequencyFile = new RandomAccessFile(frequenciesFilePath, "r")
-        ) {
-            long docIdFileLength = docIdFile.length();
-            long frequencyFileLength = frequencyFile.length();
-            int count = 0;
-
-            // Read byte by byte from both files
-            while (docIdFile.getFilePointer() < docIdFileLength && frequencyFile.getFilePointer() < frequencyFileLength && count < 105) {
-                // Read and decode the docId
-                byte[] docIdBytes = new byte[8];  // 8 bytes for docId
-                docIdFile.read(docIdBytes);
-                long docId = ByteBuffer.wrap(docIdBytes).getLong();
-
-                // Read and decode the frequency
-                byte[] frequencyBytes = new byte[4];  // 4 bytes for frequency
-                frequencyFile.read(frequencyBytes);
-                int frequency = ByteBuffer.wrap(frequencyBytes).getInt();
-
-                // Print the docId and frequency
-                System.out.println("DocId: " + docId + " - Frequency: " + frequency);
-                count++;
-            }
-        }
-    }
-
-//     Method to read and print the first 200 elements of the DocumentIndex file
-    public static void readDocumentIndexFile(String documentIndexFilePath) throws IOException {
-        try (RandomAccessFile documentIndexFile = new RandomAccessFile(documentIndexFilePath, "r")) {
-            long fileLength = documentIndexFile.length();
-            long numberOfRecords = fileLength / DOCUMENT_INDEX_ENTRY_LENGTH;
-            int count = 0;
-
-            System.out.println("[INFO] Reading DocumentIndex file... Total records: " + numberOfRecords);
-
-            // Read each record from the file
-            while (documentIndexFile.getFilePointer() < fileLength && count < 200) {
-                // Read docId
-                byte[] docIdBytes = new byte[DOCID_LENGTH];
-                documentIndexFile.read(docIdBytes);
-                long docId = ByteBuffer.wrap(docIdBytes).getLong();
-
-                // Read docNo
-                byte[] docNoBytes = new byte[DOCNO_LENGTH];
-                documentIndexFile.read(docNoBytes);
-                String docNo = new String(docNoBytes).trim();
-
-                // Read docLength
-                byte[] docLengthBytes = new byte[DOCLENGTH_LENGTH];
-                documentIndexFile.read(docLengthBytes);
-                int docLength = ByteBuffer.wrap(docLengthBytes).getInt();
-
-                // Print the read data
-                System.out.println("DocId: " + docId);
-                System.out.println("DocNo: " + docNo);
-                System.out.println("DocLength: " + docLength);
-                System.out.println("-----------------------------");
-
-                count++;
-            }
-        }
-    }
-
-
 }

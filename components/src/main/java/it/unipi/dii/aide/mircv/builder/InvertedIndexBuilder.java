@@ -2,33 +2,25 @@ package it.unipi.dii.aide.mircv.builder;
 
 import it.unipi.dii.aide.mircv.model.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static it.unipi.dii.aide.mircv.model.LexiconEntry.*;
 
 /*
 * Represents a builder for the creation of documents
 * */
 
 public class InvertedIndexBuilder {
-    Lexicon lexicon;
+    BlockLexicon lexicon;
     InvertedIndex invertedIndex;
 
     public InvertedIndexBuilder() {
-        this.lexicon = new Lexicon();
+        this.lexicon = new BlockLexicon();
         this.invertedIndex = new InvertedIndex();
     }
 
-    public InvertedIndexBuilder(Lexicon lexicon, InvertedIndex invertedIndex) {
+    public InvertedIndexBuilder(BlockLexicon lexicon, InvertedIndex invertedIndex) {
         this.lexicon = lexicon;
         this.invertedIndex = invertedIndex;
     }
@@ -67,9 +59,9 @@ public class InvertedIndexBuilder {
                     }
 
             } else {
-                LexiconEntry lexiconEntry = new LexiconEntry();
+                BlockLexiconEntry blockLexiconEntry = new BlockLexiconEntry();
                 // If the term is not present in the lexicon
-                lexicon.getLexicon().put(term, lexiconEntry);
+                lexicon.getLexicon().put(term, blockLexiconEntry);
 
                 // Create a new posting list with the current docId
                 Posting posting = new Posting(docId, 1);
@@ -109,7 +101,8 @@ public class InvertedIndexBuilder {
                         Map.Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new)));
     }
-    public Lexicon getLexicon() {
+
+    public BlockLexicon getLexicon() {
         return lexicon;
     }
 
@@ -117,48 +110,27 @@ public class InvertedIndexBuilder {
         return invertedIndex;
     }
 
-
-
-
-    public void addTerm(String term) {
-            if (lexicon.getLexicon().containsKey(term)) {
-                LexiconEntry entry = lexicon.getLexicon().get(term);
-                int tf = entry.getTermFrequency();
-                entry.setTermFrequency(tf + 1);
-            } else {
-                lexicon.getLexicon().put(term, new LexiconEntry());
-            }
-        }
-
-        public Set<String> getLexiconTerms() {
+    public Set<String> getLexiconTerms() {
             return lexicon.getLexicon().keySet();
         }
 
-        public void setDocumentFrequency(InvertedIndex invertedIndex, String term) {
-            LexiconEntry entry = lexicon.getLexicon().get(term);
-            entry.setDocumentFrequency(invertedIndex.getPostingListLength(term));
-        }
-
-        public void setLexicon(Lexicon lexicon) {
+    public void setLexicon(BlockLexicon lexicon) {
             this.lexicon = lexicon;
         }
 
-        @Override
-        public String toString() {
-            StringBuilder result = new StringBuilder();
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
 
-            for (Map.Entry<String, LexiconEntry> entry : lexicon.getLexicon().entrySet()) {
-                String term = entry.getKey();
-                LexiconEntry lexiconEntry = entry.getValue();
+        for (Map.Entry<String, BlockLexiconEntry> entry : lexicon.getLexicon().entrySet()) {
+            String term = entry.getKey();
+            BlockLexiconEntry blockLexiconEntry = entry.getValue();
 
-                result.append(term).append("    ");
-                result.append(lexiconEntry.getTermFrequency()).append(", ");
-                result.append(lexiconEntry.getDocumentFrequency()).append(", ");
-                result.append(lexiconEntry.getInverseDocumentFrequency()).append("\n");
-            }
-
-            return result.toString();
+            result.append(term).append("    ");
         }
+
+        return result.toString();
+    }
 
     /**
      * Clear the class instances in order to be used for a new block processing.

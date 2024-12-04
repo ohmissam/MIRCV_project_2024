@@ -5,19 +5,19 @@ import java.util.Map;
 
 public class DocumentIndex {
 
-    private static Map<Long, DocumentEntry> documentIndex;
+    private static Map<Long, DocumentIndexEntry> documentIndex;
 
     public DocumentIndex(){
         documentIndex = new HashMap<>();
     }
 
-    public static Map<Long, DocumentEntry> getDocumentIndex() {
+    public static Map<Long, DocumentIndexEntry> getDocumentIndex() {
         return documentIndex;
     }
 
 
-    public void addDoc(long docId, DocumentEntry documentEntry){
-        documentIndex.put(docId, documentEntry);
+    public void addDoc(long docId, DocumentIndexEntry documentIndexEntry){
+        documentIndex.put(docId, documentIndexEntry);
     }
 
 

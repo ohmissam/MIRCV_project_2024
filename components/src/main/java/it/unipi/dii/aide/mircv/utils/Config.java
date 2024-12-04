@@ -11,7 +11,7 @@ public class Config {
     public final static String COLLECTION_PATH = "data\\collection.tsv";
 
     //String for the compressed small document collection path
-    public final static String COMPRESSED_COLLECTION_PATH = "data\\collection_small.tar.gz";
+    public final static String SAMPLED_COLLECTION_PATH = "data\\collection_150000sampled.tar.gz";
 
     //String for the compressed document collection path
     public final static String TAR_COLLECTION_PATH = "data\\collection.tar.gz";
@@ -22,8 +22,13 @@ public class Config {
     //String for the path of the document index file
     public static final String DOCINDEX_FILE_PATH = "data\\DocumentIndex.txt";
 
-    //String for the path of the inverted index file
-    public static final String INVINDEX_FILE_PATH = "data\\InvertedIndex.txt";
+    //String for the path of the inverted index docIds and frequencies files
+    public static final String INVINDEX_DOC_IDS_FILE_PATH = "data\\InvertedIndexDocIds.txt";
+    public static final String INVINDEX_FREQUENCIES_FILE_PATH = "data\\InvertedIndexFrequencies.txt";
+
+    //String for the path of th Skip Blocks file
+    public static final String SKIP_BLOCKS_FILE_PATH = "data\\SkipBlocks.txt";
+
 
     //String or thw path of the statistics file
     public static final String STATISTICS_PATH = "data\\statistics.txt";
@@ -36,6 +41,10 @@ public class Config {
 
     //Flag to enable stemming and stopword removal
     public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = true;
+    //Flag to enable compression
+    public static final boolean ENABLE_COMPRESSION = false;
+    //Flag to enable debug mode
+    public static final boolean IS_DEBUG_MODE = true;
 
     // Threshold of memory over which the index must be flushed to disk
     public static final double PERCENTAGE = 0.7;

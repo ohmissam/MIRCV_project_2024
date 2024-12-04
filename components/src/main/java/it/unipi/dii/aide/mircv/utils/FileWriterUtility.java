@@ -1,22 +1,26 @@
 package it.unipi.dii.aide.mircv.utils;
 
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
-import it.unipi.dii.aide.mircv.model.DocumentEntry;
-import it.unipi.dii.aide.mircv.model.LexiconEntry;
+import it.unipi.dii.aide.mircv.model.DocumentIndexEntry;
+import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
+import it.unipi.dii.aide.mircv.model.MergedLexiconEntry;
+import it.unipi.dii.aide.mircv.model.SkipBlock;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static it.unipi.dii.aide.mircv.utils.Config.*;
-import static it.unipi.dii.aide.mircv.utils.LexiconEntryConfig.*;
+import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.*;
+import static it.unipi.dii.aide.mircv.utils.MergedLexiconEntryConfig.*;
 import static it.unipi.dii.aide.mircv.utils.DocumentIndexEntryConfig.*;
+import static it.unipi.dii.aide.mircv.utils.SkipBlockConfig.*;
 
 
 
 public class FileWriterUtility {
 
-    public void writeInvertedIndexAndLexiconToFiles(InvertedIndexBuilder invertedIndexBuilder, int blockNumber) throws FileNotFoundException {
+    public void writeInvertedIndexAndLexiconBlockToFiles(InvertedIndexBuilder invertedIndexBuilder, int blockNumber) throws FileNotFoundException {
         //Write the inverted index's files into the block's files
         writeInvertedIndexToFile(invertedIndexBuilder,
                 DOCIDS_BLOCK_PATH+blockNumber+".txt",
@@ -35,7 +39,7 @@ public class FileWriterUtility {
         try (RandomAccessFile lexiconFile = new RandomAccessFile(outputPath, "rw")) {
             invertedIndexBuilder.getLexicon().getLexicon().forEach((key, lexiconEntry) -> {
                 try {
-                    writeLexiconEntryToFile(lexiconEntry, lexiconFile, key);
+                    writeLexiconBlockEntryToFile(lexiconEntry, lexiconFile, key);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -78,7 +82,6 @@ public class FileWriterUtility {
                 });
 
                 //Set the docId offset, the frequency offset, the posting list length of the term in the lexicon
-                invertedIndexBuilder.getLexicon().getLexicon().get(key).getDocumentFrequency();
                 invertedIndexBuilder.getLexicon().getLexicon().get(key).set(offsetDocId, offsetFrequency, postingList.getPostingList().size());
             });
 
@@ -88,15 +91,15 @@ public class FileWriterUtility {
         }
     }
 
-    public void writeLexiconEntryToFile(LexiconEntry termInfo, RandomAccessFile lexiconFile, String key) throws FileNotFoundException {
+    public void writeLexiconBlockEntryToFile(BlockLexiconEntry termInfo, RandomAccessFile lexiconFile, String key) throws FileNotFoundException {
 
         //Fill with whitespaces to keep the length standard
-        String tmp = Utils.leftpad(key, TERM_LENGTH);
+        String tmp = Utils.leftpad(key, BlockLexiconEntryConfig.TERM_LENGTH);
 
-        byte[] term = ByteBuffer.allocate(TERM_LENGTH).put(tmp.getBytes()).array();
-        byte[] offsetDocId = ByteBuffer.allocate(OFFSET_DOCIDS_LENGTH).putLong(termInfo.getOffsetDocId()).array();
-        byte[] offsetFrequency = ByteBuffer.allocate(OFFSET_FREQUENCIES_LENGTH).putLong(termInfo.getOffsetFrequency()).array();
-        byte[] postingListLength = ByteBuffer.allocate(POSTING_LIST_LENGTH).putInt(termInfo.getPostingListLength()).array();
+        byte[] term = ByteBuffer.allocate(BlockLexiconEntryConfig.TERM_LENGTH).put(tmp.getBytes()).array();
+        byte[] offsetDocId = ByteBuffer.allocate(BlockLexiconEntryConfig.OFFSET_DOCIDS_LENGTH).putLong(termInfo.getOffsetDocId()).array();
+        byte[] offsetFrequency = ByteBuffer.allocate(BlockLexiconEntryConfig.OFFSET_FREQUENCIES_LENGTH).putLong(termInfo.getOffsetFrequency()).array();
+        byte[] postingListLength = ByteBuffer.allocate(BlockLexiconEntryConfig.POSTING_LIST_LENGTH).putInt(termInfo.getPostingListLength()).array();
 
         try {
             lexiconFile.write(term);
@@ -109,15 +112,55 @@ public class FileWriterUtility {
         }
     }
 
-    public void writeDocumentEntryToFile(long docId, DocumentEntry documentEntry, RandomAccessFile documentIndexFile){
+    /**
+     * Write the term info to a file. This method is used during the merge of the partial blocks, here we have
+     * all the information directly inside the termInfo object.
+     * @param lexiconFile Is the random access file on which the term info is written.
+     * @param termInfo Information of the term to be written.
+     */
+    public static void writeLexiconEntryToFile(RandomAccessFile lexiconFile, MergedLexiconEntry termInfo){
+        //Fill with whitespaces to keep the length standard
+        String tmp = Utils.leftpad(termInfo.getTerm(), MergedLexiconEntryConfig.TERM_LENGTH);
+
+        byte[] term = ByteBuffer.allocate(MergedLexiconEntryConfig.TERM_LENGTH).put(tmp.getBytes()).array();
+        byte[] offsetDocId = ByteBuffer.allocate(MergedLexiconEntryConfig.OFFSET_DOCIDS_LENGTH).putLong(termInfo.getOffsetDocId()).array();
+        byte[] offsetFrequency = ByteBuffer.allocate(MergedLexiconEntryConfig.OFFSET_FREQUENCIES_LENGTH).putLong(termInfo.getOffsetFrequency()).array();
+        byte[] bytesDocId = ByteBuffer.allocate(BYTES_DOCID_LENGTH).putInt(termInfo.getDocIdsBytesLength()).array();
+        byte[] bytesFrequency = ByteBuffer.allocate(BYTES_FREQUENCY_LENGTH).putInt(termInfo.getFrequenciesBytesLength()).array();
+        byte[] postingListLength = ByteBuffer.allocate(MergedLexiconEntryConfig.POSTING_LIST_LENGTH).putInt(termInfo.getPostingListLength()).array();
+        byte[] idf = ByteBuffer.allocate(IDF_LENGTH).putDouble(termInfo.getInverseDocumentFrequency()).array();
+        byte[] offsetSkipBlocks = ByteBuffer.allocate(OFFSET_SKIPBLOCKS_LENGTH).putLong(termInfo.getOffsetSkipBlock()).array();
+        byte[] numberOfSkipBlocks = ByteBuffer.allocate(NUMBER_OF_SKIPBLOCKS_LENGTH).putInt(termInfo.getNumberOfSkipBlocks()).array();
+        byte[] tfidfTermUpperBound = ByteBuffer.allocate(MAXSCORE_LENGTH).putInt(termInfo.getTfidfTermUpperBound()).array();
+        byte[] bm25TermUpperBound = ByteBuffer.allocate(MAXSCORE_LENGTH).putInt(termInfo.getBm25TermUpperBound()).array();
+
+        try {
+            lexiconFile.write(term);
+            lexiconFile.write(offsetDocId);
+            lexiconFile.write(offsetFrequency);
+            lexiconFile.write(idf);
+            lexiconFile.write(bytesDocId);
+            lexiconFile.write(bytesFrequency);
+            lexiconFile.write(postingListLength);
+            lexiconFile.write(offsetSkipBlocks);
+            lexiconFile.write(numberOfSkipBlocks);
+            lexiconFile.write(tfidfTermUpperBound);
+            lexiconFile.write(bm25TermUpperBound);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeDocumentEntryToFile(long docId, DocumentIndexEntry documentIndexEntry, RandomAccessFile documentIndexFile){
 
         //Fill with whitespaces to keep the length standard
-        String tmp = Utils.leftpad(documentEntry.getDocNo(), DOCNO_LENGTH);
+        String tmp = Utils.leftpad(documentIndexEntry.getDocNo(), DOCNO_LENGTH);
 
         //Instantiating the ByteBuffer to write to the file
         byte[] docIdBytes = ByteBuffer.allocate(DOCID_LENGTH).putLong(docId).array();
         byte[] docNoBytes = ByteBuffer.allocate(DOCNO_LENGTH).put(tmp.getBytes()).array();
-        byte[] docLenBytes = ByteBuffer.allocate(DOCLENGTH_LENGTH).putInt(documentEntry.getDocLength()).array();
+        byte[] docLenBytes = ByteBuffer.allocate(DOCLENGTH_LENGTH).putInt(documentIndexEntry.getDocLength()).array();
 
         try {
             documentIndexFile.write(docIdBytes);
@@ -162,4 +205,27 @@ public class FileWriterUtility {
         }
     }
 
+    /**
+     * Write the term -> lexicon entry to a file. This method is used during the merge of the partial blocks, here we have
+     * all the information directly inside the LexiconEntry object.
+     * @param skipBlocksFile Is the random access file on which the term info is written.
+     */
+    public static void writeSkipBlockToFile(SkipBlock skipBlock, RandomAccessFile skipBlocksFile){
+        byte[] startDocIdOffset = ByteBuffer.allocate(OFFSET_LENGTH).putLong(skipBlock.getStartDocidOffset()).array();
+        byte[] skipBlockDocIdLength = ByteBuffer.allocate(SKIP_BLOCK_DIMENSION_LENGTH).putInt(skipBlock.getSkipBlockDocidLength()).array();
+        byte[] startFreqOffset = ByteBuffer.allocate(OFFSET_LENGTH).putLong(skipBlock.getStartFreqOffset()).array();
+        byte[] skipBlockFreqLength = ByteBuffer.allocate(SKIP_BLOCK_DIMENSION_LENGTH).putInt(skipBlock.getSkipBlockFreqLength()).array();
+        byte[] maxDocId = ByteBuffer.allocate(MAX_DOC_ID_LENGTH).putLong(skipBlock.getMaxDocid()).array();
+        try {
+            skipBlocksFile.write(startDocIdOffset);
+            skipBlocksFile.write(skipBlockDocIdLength);
+            skipBlocksFile.write(startFreqOffset);
+            skipBlocksFile.write(skipBlockFreqLength);
+            skipBlocksFile.write(maxDocId);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
+

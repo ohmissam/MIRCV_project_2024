@@ -4,3 +4,4 @@
 /.idea/*
 /data/collection_big.tsv
 *.class
+*.txt
