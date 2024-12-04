@@ -5,6 +5,4 @@
 /data/collection_big.tsv
 *.class
 *.txt
-*.txt
 query_execution/src/main/java/org/example/DAAT.java
-c

@@ -1,4 +1,8 @@
-package it.unipi.dii.aide.mircv.utils;
+package it.unipi.dii.aide.mircv;
+
+import it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig;
+import it.unipi.dii.aide.mircv.utils.Config;
+import it.unipi.dii.aide.mircv.utils.MergedLexiconEntryConfig;
 
 import java.io.*;
 import java.nio.ByteBuffer;
