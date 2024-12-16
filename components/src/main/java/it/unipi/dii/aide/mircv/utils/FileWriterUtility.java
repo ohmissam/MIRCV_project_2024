@@ -117,7 +117,7 @@ public class FileWriterUtility {
      * @param lexiconFile Is the random access file on which the term info is written.
      * @param termInfo Information of the term to be written.
      */
-    public static void writeLexiconEntryToFile(RandomAccessFile lexiconFile, MergedLexiconEntry termInfo){
+    public static void writeMergedLexiconEntryToFile(RandomAccessFile lexiconFile, MergedLexiconEntry termInfo){
         //Fill with whitespaces to keep the length standard
         String tmp = Utils.leftpad(termInfo.getTerm(), MergedLexiconEntryConfig.TERM_LENGTH);
 

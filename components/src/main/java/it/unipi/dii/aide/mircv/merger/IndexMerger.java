@@ -275,7 +275,7 @@ public class IndexMerger {
                     System.out.println("[DEBUG] Number of skipBlocks created: " + skipBlocks.size());
                 }
 
-                FileWriterUtility.writeLexiconEntryToFile(lexiconFile, mergedLexiconEntry);
+                FileWriterUtility.writeMergedLexiconEntryToFile(lexiconFile, mergedLexiconEntry);
 
                 docIdsOffset += 8L*docIds.size();
                 frequenciesOffset += 4L*frequencies.size();

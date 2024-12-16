@@ -23,4 +23,16 @@ public class MergedLexiconEntryConfig {
 
     // Length in bytes of the max score field
     public final static int MAXSCORE_LENGTH = 4;
+
+    public final static int MERGED_LEXICON_ENTRY_LENGTH = TERM_LENGTH
+            + OFFSET_DOCIDS_LENGTH
+            + OFFSET_FREQUENCIES_LENGTH
+            + POSTING_LIST_LENGTH
+            + BYTES_FREQUENCY_LENGTH
+            + BYTES_DOCID_LENGTH
+            + IDF_LENGTH
+            + OFFSET_SKIPBLOCKS_LENGTH
+            + NUMBER_OF_SKIPBLOCKS_LENGTH
+            + MAXSCORE_LENGTH
+            + MAXSCORE_LENGTH;
 }

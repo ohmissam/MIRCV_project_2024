@@ -1,7 +1,7 @@
 package it.unipi.dii.aide.mircv.utils;
 
 import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
-
+import it.unipi.dii.aide.mircv.model.SkipBlock;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
@@ -83,6 +83,51 @@ public class FileReaderUtility {
 
             } catch (IOException e) {
                 System.err.println("[ReadPostingListFrequencies] Exception during read");
+                throw new RuntimeException(e);
+            }
+        }
+
+        //Return the list
+        return list;
+    }
+
+    /**
+     * Reads the posting list's skip blocks from the given file, starting from offset it will read the
+     * number of skip blocks indicated by the given length parameter.
+     * @param randomAccessFileSkipBlocks RandomAccessFile of the skip blocks' file
+     * @param offset offset starting from where to read the skip blocks'
+     * @param length number of skip blocks to read
+     */
+    public static ArrayList<SkipBlock> readPostingListSkipBlocks(RandomAccessFile randomAccessFileSkipBlocks, long offset, int length) {
+
+        //ArrayList to store the posting list's frequencies
+        ArrayList<SkipBlock> list = new ArrayList<>();
+
+        try {
+
+            //Set the file pointer to the start of the posting list
+            randomAccessFileSkipBlocks.seek(offset);
+
+        } catch (IOException e) {
+            System.err.println("[ReadPostingListSkipBlocks] Exception during seek");
+            throw new RuntimeException(e);
+        }
+
+        //Read the skip blocks from the file
+        for(int i = 0; i < length; i ++) {
+            try {
+
+                //Read the next skip block from the file and add it to the result list
+                list.add(new SkipBlock(
+                        randomAccessFileSkipBlocks.readLong(), //Docids offset
+                        randomAccessFileSkipBlocks.readInt(),  //Docids length
+                        randomAccessFileSkipBlocks.readLong(), //Frequencies offset
+                        randomAccessFileSkipBlocks.readInt(),  //Frequencies length
+                        randomAccessFileSkipBlocks.readLong()) //Max docid in the skip block
+                );
+
+            } catch (IOException e) {
+                System.err.println("[ReadPostingListSkipBlocks] Exception during read");
                 throw new RuntimeException(e);
             }
         }
