@@ -94,37 +94,41 @@ public class PostingList {
 
     }
 
+    /**
+     * Search the next doc id of the current posting list, such that is greater or equal to the searched doc id.
+     * It exploits the skip blocks to traverse faster the posting list
+     * @param searchedDocId doc id to search
+     * posting are present in the posting list
+     */
     public void nextGEQ(long searchedDocId) {
         if (this.getPostingListIterator().getCurrentDocId() == searchedDocId) {
-            return;  // Se il docId corrente è uguale a quello cercato, ritorna senza fare nulla
-        }
-
-        if (IS_DEBUG_MODE) {
-            System.out.println("[DEBUG] Max docId in current skipBlock < searched docId: " +
-                    this.getPostingListIterator().getCurrentSkipBlock().maxDocid +" < "+ searchedDocId);
+            return;
         }
 
         // Move to the next skip block until we find that the searched doc id can be contained in the
         // portion of the posting list described by the skip block
-        while (this.getPostingListIterator().getCurrentSkipBlock().maxDocid < searchedDocId) {
+        while (postingListIterator.getCurrentSkipBlock().maxDocid < searchedDocId) {
+
+            if (IS_DEBUG_MODE) {
+                System.out.println("[DEBUG] Max docId in current skipBlock < searched docId: " +
+                        postingListIterator.getCurrentSkipBlock().maxDocid +" < "+ searchedDocId);
+            }
             // If it's possible to move to the next skip block, then move the iterator
-            if (this.postingListIterator.getSkipBlockIterator().hasNext()) {
+            if (postingListIterator.getSkipBlockIterator().hasNext()) {
                 // Debug
                 if (IS_DEBUG_MODE) {
-                    System.out.println("[DEBUG] Changing the skip block");
+                    System.out.println("[DEBUG] Changing the skip block iterator to next skip block");
                 }
 
                 // Move the iterator to the next skip block
-                this.postingListIterator.nextSkipBlock();
-                //TO DO: Controllare riga se corretta
-                this.loadPostingList(); // Reload the posting list for the current skip block
-
-//                postingIterator = currentSkipBlock.getPostingListIterator();
-            } else {
+                postingListIterator.nextSkipBlock();
+                loadPostingList(); // Reload the posting list for the current skip block
+            }
+            else {
                 // All the skip blocks are traversed, the posting list doesn't contain a doc id GEQ than
                 // the one searched
                 if (IS_DEBUG_MODE) {
-                    System.out.println("[DEBUG] End of posting list");
+                    System.out.println("[DEBUG] Reached the end of this posting list");
                 }
                 // Set the end of posting list flag
                 this.postingListIterator.setNoMorePostings();
@@ -132,21 +136,28 @@ public class PostingList {
             }
 
             if (IS_DEBUG_MODE) {
-                System.out.println("[DEBUG] Max docId in the new skipBlock < searched docId: " +
-                        postingListIterator.getCurrentSkipBlock().maxDocid +" < "+ searchedDocId);
+                System.out.println("[DEBUG] Max docId in the new skipBlock > searched docId: " +
+                        postingListIterator.getCurrentSkipBlock().maxDocid +" > "+ searchedDocId);
             }
         }
 
-        // While we have more postings, traverse them
+        boolean found = false;
+
+        // Iterate over the postings until to find a docid greater or equal than the searched one
         Posting posting;
         while (postingListIterator.getPostingIterator().hasNext()) {
             posting = postingListIterator.getPostingIterator().next();
-            if (posting.getDocId() >= searchedDocId) {
+            if (posting.docId >= searchedDocId) {
                 // If the current posting docId is greater than or equal to the searched docId, return it
                 postingListIterator.setCurrentDocId(posting.getDocId());
                 postingListIterator.setCurrentFrequency(posting.getFrequency());
+                found=true;
                 return;
             }
+        }
+
+        if(!found && postingListIterator.getSkipBlockIterator().hasNext()){
+            loadPostingList();
         }
 
         // No postings are GEQ in the current posting list, we've finished the traversing the whole posting list
@@ -211,9 +222,7 @@ public class PostingList {
 
     @Override
     public String toString() {
-        return "PostingList{" +
-                "postingList=" + postingList +
-                '}';
+        return "PostingList = " + postingList;
     }
 
 }

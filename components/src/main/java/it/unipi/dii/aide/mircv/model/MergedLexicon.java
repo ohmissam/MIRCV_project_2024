@@ -4,6 +4,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import it.unipi.dii.aide.mircv.utils.Config;
+import it.unipi.dii.aide.mircv.utils.FileReaderUtility;
 import it.unipi.dii.aide.mircv.utils.MergedLexiconEntryConfig;
 
 public class MergedLexicon {
@@ -39,7 +40,7 @@ public class MergedLexicon {
             while (offset < lexiconFile.length()) {
 
                 //Read the next lexiconEntry from the file starting at the current offset
-                lexiconEntry = readNextTerm(offset);
+                lexiconEntry = FileReaderUtility.readNextTerm(lexiconFile, offset);
 
                 //If the lexiconEntry is not null (no problem encountered, or we aren't at the end of the file)
                 if (lexiconEntry!= null){
@@ -59,54 +60,6 @@ public class MergedLexicon {
             e.printStackTrace();
         }
 
-    }
-
-    /**
-     * Read the next term from the lexicon file.
-     * @param offset starting offset of the next term to be read
-     * @return The next term from the lexicon file.
-     */
-    private MergedLexiconEntry readNextTerm(int offset){
-        //Array of bytes in which put the term
-        byte[] termBytes = new byte[MergedLexiconEntryConfig.TERM_LENGTH];
-
-        //String containing the term
-        String term;
-
-        //TermInfo containing the term information to be returned
-        MergedLexiconEntry lexiconEntry;
-
-        try {
-            //Set the file pointer to the start of the lexicon entry
-            lexiconFile.seek(offset);
-
-            //Read the first 48 containing the term
-            lexiconFile.readFully(termBytes, 0, MergedLexiconEntryConfig.TERM_LENGTH);
-
-            //Convert the bytes to a string and trim it
-            term = new String(termBytes, Charset.defaultCharset()).trim();
-
-            //Instantiate the TermInfo object reading the next 3 integers from the file
-            lexiconEntry = new MergedLexiconEntry(term,   //Term
-                    lexiconFile.readLong(),  //Offset docids file
-                    lexiconFile.readLong(),  //Offset frequencies file
-                    lexiconFile.readDouble(), //idf
-                    lexiconFile.readInt(),  //Length in bytes of the docids list
-                    lexiconFile.readInt(),  //Length in bytes of the frequencies list
-                    lexiconFile.readInt(),  //Length of the term's posting list
-                    lexiconFile.readLong(), //Offset of the skipBlocks in the skipBlocks file
-                    lexiconFile.readInt(),  //Number of skipBlocks
-                    lexiconFile.readInt(), //TFIDF term upper bound
-                    lexiconFile.readInt()  //BM25 term lower bound
-            );
-
-
-            return lexiconEntry;
-
-        } catch (IOException e) {
-            //System.err.println("[ReadNextTermInfo] EOF reached while reading the next lexicon entry");
-            return null;
-        }
     }
 
 

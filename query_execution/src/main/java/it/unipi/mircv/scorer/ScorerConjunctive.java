@@ -3,6 +3,7 @@ import it.unipi.dii.aide.mircv.model.*;
 import static utils.ScorerConfig.*;
 import utils.Tuple;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -15,7 +16,7 @@ public class ScorerConjunctive {
      * @return an ordered array of tuples containing the document id and the score associated with the document.
      */
     public static ArrayList<Tuple<Long,Double>> scoreCollectionConjunctive(PostingList[] postingLists, DocumentIndex documentIndex) {
-
+        System.out.println("Initial posting lists: \n"+Arrays.toString(postingLists));
         //Priority queue to store the document id and its score, based on the priority of the document
         RankedDocs rankedDocs = new RankedDocs(BEST_K_VALUE);
         ArrayList<Integer> essential = new ArrayList<>();
@@ -25,17 +26,23 @@ public class ScorerConjunctive {
         //Retrieve the time at the beginning of the computation
         long begin = System.currentTimeMillis();
 
-        //Move the iterators of each posting list to the first position
+        // Move the iterators of each posting list to the first position
         for (PostingList postingList : postingLists) {
+            System.out.println("Current posting list: \n" + postingList.toString());
+
             if (postingList.getPostingListIterator().hasNext()) {
+                System.out.println("Has Next: "+postingList.getPostingListIterator());
                 postingList.getPostingListIterator().next();
+                System.out.println("Next: "+postingList.getPostingListIterator());
                 orderedPostingLists.add(postingList);
             }
         }
 
         //sort the posting list in ascending order
         if(USE_BM25) {
+            System.out.println("USE_BM25: "+USE_BM25);
             orderedPostingLists.sort(Comparator.comparingInt(o -> o.getMergedLexiconEntry().getBm25TermUpperBound()));
+            System.out.println("orderedPostingLists: "+Arrays.toString(orderedPostingLists.toArray()));
         }
         else{
             orderedPostingLists.sort(Comparator.comparingInt(o -> o.getMergedLexiconEntry().getTfidfTermUpperBound()));
@@ -44,12 +51,14 @@ public class ScorerConjunctive {
         for(int i = 0; i < orderedPostingLists.size(); i++){
             essential.add(i);
             postingLists[i] = orderedPostingLists.get(i);
+            System.out.println("postinglist["+i+"]: "+postingLists[i].toString());
             if(IS_DEBUG_MODE){
                 System.out.println("[DEBUG] Lexicon entry:\n" + postingLists[i].getMergedLexiconEntry());
+                System.out.println("BM25: "+postingLists[i].getMergedLexiconEntry().getBm25TermUpperBound());
             }
         }
 
-        //Tuple to store the current minimum document id and the list of posting lists containing it
+        //Tuple to store the current maximum document id and the list of posting lists containing it
         long maxDocid;
 
         //Support variables to accumulate over the iteration the score values
@@ -57,13 +66,13 @@ public class ScorerConjunctive {
         double tf_BM25;
         double score = 0;
 
-        //Access each posting list in a Document-At-a-Time fashion until no more postings are available
+        // Access each posting list in a Document-At-a-Time fashion until no more postings are available
         while (!aPostingListEnded(postingLists)) {
-            //if essential is empty no more docs can enter the top K ranking
+            // if essential is empty no more docs can enter the top K ranking
             if(essential.isEmpty()){
                 break;
             }
-            //Retrieve the maximum document id and the list of posting lists containing it
+            // Retrieve the maximum document id and the list of posting lists containing it
             maxDocid = maxDocid(postingLists);
 
             if(IS_DEBUG_MODE) {
@@ -71,9 +80,9 @@ public class ScorerConjunctive {
                 System.out.println("[DEBUG] Searched DocId: " + maxDocid);
             }
 
-            //Perform the nextGEQ operation for each posting list
+            // Perform the nextGEQ operation for each posting list
             for (PostingList postingList : postingLists) {
-                //If we reach the end of the posting list then we break the for, the conjunctive query is ended
+                // If we reach the end of the posting list then we break the for, the conjunctive query is ended
                 // and all the next conditions are not satisfied
                 postingList.nextGEQ(maxDocid);
             }
@@ -89,14 +98,14 @@ public class ScorerConjunctive {
 
                     //Debug
                     if(IS_DEBUG_MODE) {
-                        System.out.println(postingList);
+                        System.out.println("finded a docID present in all positng lists");
                     }
+                    long currentDocId = postingList.getPostingListIterator().getCurrentDocId();
+                    int currentFrequency = postingList.getPostingListIterator().getCurrentFrequency();
+                    double idf = postingList.getMergedLexiconEntry().getInverseDocumentFrequency();
+
                     //If the scoring is BM25
                     if (USE_BM25) {
-                        long currentDocId = postingList.getPostingListIterator().getCurrentDocId();
-                        int currentFrequency = postingList.getPostingListIterator().getCurrentFrequency();
-                        double idf = postingList.getMergedLexiconEntry().getInverseDocumentFrequency();
-
                         //Compute the BM25's tf for the current posting
                         tf_BM25 = currentFrequency / (K1 * ((1 - B) + B * ((double) documentIndex.getDoc(currentDocId).getDocLength() / STATISTICS.getAvdl()) + currentFrequency));
 
@@ -122,13 +131,13 @@ public class ScorerConjunctive {
                             break;
                         }
 
-                    } else {
-
+                    }
+                    else {
                         //Compute the TFIDF'S tf for the current posting
-                        tf_tfidf = 1 + Math.log(postingList.getPostingListIterator().getCurrentFrequency()) / Math.log(2);
+                        tf_tfidf = 1 + Math.log(currentFrequency) / Math.log(2);
 
                         //Add the partial score to the accumulated score
-                        score += tf_tfidf * postingList.getMergedLexiconEntry().getInverseDocumentFrequency();
+                        score += tf_tfidf * idf;
 
                         if(IS_DEBUG_MODE){
                             System.out.println("[DEBUG] tfidf docID " + maxDocid + ": " + score);
@@ -173,6 +182,7 @@ public class ScorerConjunctive {
             }
             //clear the support variables for the next iteration
             score = 0;
+
         }
 
         //print the time used to score the documents, so to generate an answer for the query

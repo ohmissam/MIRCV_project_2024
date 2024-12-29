@@ -40,7 +40,7 @@ public class Config {
     public static final String FREQUENCIES_BLOCK_PATH = "components/src/main/resources/tmp/invertedIndexFrequencies";
 
     //Flag to enable stemming and stopword removal
-    public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = true;
+    public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = false;
     //Flag to enable compression
     public static final boolean ENABLE_COMPRESSION = false;
     //Flag to enable debug mode
