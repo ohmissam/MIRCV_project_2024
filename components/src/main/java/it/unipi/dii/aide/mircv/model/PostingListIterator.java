@@ -70,21 +70,12 @@ public class PostingListIterator {
         this.currentFrequency = currentFrequency;
     }
 
-    public Posting next() {
-        if (!postingIterator.hasNext()) {
-            if (skipBlockIterator.hasNext()) {
-                currentSkipBlock = skipBlockIterator.next();
-                return null;
-            } else {
-                noMorePostings = true;
-                return null;
-            }
-        }
+    public void setCurrentSkipBlock(SkipBlock currentSkipBlock) {
+        this.currentSkipBlock = currentSkipBlock;
+    }
 
-        Posting posting = postingIterator.next();
-        currentDocId = posting.getDocId();
-        currentFrequency = posting.getFrequency();
-        return posting;
+    public void setNoMorePostings(boolean noMorePostings) {
+        this.noMorePostings = noMorePostings;
     }
 
     // Advances to the next skip block if available, updating the current skip block.

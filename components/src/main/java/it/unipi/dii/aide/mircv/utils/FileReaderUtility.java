@@ -1,7 +1,7 @@
 package it.unipi.dii.aide.mircv.utils;
 
 import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
-import it.unipi.dii.aide.mircv.model.MergedLexiconEntry;
+import it.unipi.dii.aide.mircv.model.LexiconEntry;
 import it.unipi.dii.aide.mircv.model.SkipBlock;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -205,7 +205,7 @@ public class FileReaderUtility {
      * @param offset starting offset of the next term to be read
      * @return The next term from the lexicon file.
      */
-    public static MergedLexiconEntry readNextTerm(RandomAccessFile lexiconFile, int offset){
+    public static LexiconEntry readNextTerm(RandomAccessFile lexiconFile, int offset){
         //Array of bytes in which put the term
         byte[] termBytes = new byte[MergedLexiconEntryConfig.TERM_LENGTH];
 
@@ -213,7 +213,7 @@ public class FileReaderUtility {
         String term;
 
         //TermInfo containing the term information to be returned
-        MergedLexiconEntry lexiconEntry;
+        LexiconEntry lexiconEntry;
 
         try {
             //Set the file pointer to the start of the lexicon entry
@@ -226,7 +226,7 @@ public class FileReaderUtility {
             term = new String(termBytes, Charset.defaultCharset()).trim();
 
             //Instantiate the TermInfo object reading the next 3 integers from the file
-            lexiconEntry = new MergedLexiconEntry(term,   //Term
+            lexiconEntry = new LexiconEntry(term,   //Term
                     lexiconFile.readLong(),  //Offset docids file
                     lexiconFile.readLong(),  //Offset frequencies file
                     lexiconFile.readDouble(), //idf

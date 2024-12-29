@@ -1,6 +1,6 @@
 package it.unipi.dii.aide.mircv.model;
 
-public class MergedLexiconEntry {
+public class LexiconEntry {
     private final String term;
     private final long offsetDocId;
     private final long offsetFrequency;
@@ -14,9 +14,9 @@ public class MergedLexiconEntry {
     private final int bm25TermUpperBound;
 
 
-    public MergedLexiconEntry(String term, long offsetDocId, long offsetFrequency, double inverseDocumentFrequency,
-                              int docIdsBytesLength, int frequenciesBytesLength, int postingListLength,
-                              long offsetSkipBlock, int numberOfSkipBlocks, int tfidfTermUpperBound, int bm25TermUpperBound) {
+    public LexiconEntry(String term, long offsetDocId, long offsetFrequency, double inverseDocumentFrequency,
+                        int docIdsBytesLength, int frequenciesBytesLength, int postingListLength,
+                        long offsetSkipBlock, int numberOfSkipBlocks, int tfidfTermUpperBound, int bm25TermUpperBound) {
         this.term = term;
         this.offsetDocId = offsetDocId;
         this.offsetFrequency = offsetFrequency;

@@ -6,77 +6,86 @@ import it.unipi.mircv.scorer.ScorerConjunctive;
 import it.unipi.dii.aide.mircv.model.*;
 import utils.Tuple;
 
-import static it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor.removePunctuation;
+public class DemoInterface {
 
-public class ConjunctiveScoreTester {
-
-    private static MergedLexicon lexicon = new MergedLexicon();
+    private static Lexicon lexicon = new Lexicon();
     private static DocumentIndex documentIndex = new DocumentIndex();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("--- Welcome to the ScorerConjunctive Testing Interface ---");
+        System.out.println("--- Welcome to the Demo Interface ---");
         System.out.println("Loading the lexicon in memory...");
-        lexicon.loadMergedLexicon();
+        lexicon.loadLexicon();
 
-        if(Config.IS_DEBUG_MODE){
+        if (Config.IS_DEBUG_MODE) {
             System.out.println("[DEBUG] Lexicon size: " + lexicon.getLexicon().size());
         }
         System.out.println("Loading the document index in memory...");
         DocumentIndex documentIndex = new DocumentIndex();
         documentIndex.loadDocumentIndex();
-        if(Config.IS_DEBUG_MODE){
+        if (Config.IS_DEBUG_MODE) {
             System.out.println("[DEBUG] Document index size: " + documentIndex.getDocumentIndex().size());
         }
         System.out.println("Data structures loaded in memory.");
 
-        // Prompt user to enter a query
-        System.out.println("Enter a query:");
-        String queryInput = scanner.nextLine();
-        System.out.println(queryInput);
-        String[] queryTerms = parseQuery(queryInput);
+        while (true) {
+            // Prompt user to enter a query
+            System.out.println("\nEnter a query (or type 'exit' to quit):");
+            String queryInput = scanner.nextLine();
 
-        //Check if there are terms in the lexicon
-        if(queryTerms.length == 0){
-            System.out.println("No document found. Exit.");
-            scanner.close();
-            return;
-        }
-        System.out.println("Parsed Query: "+ Arrays.toString(queryTerms));
+            // Check if the input is null or empty
+            if (queryInput == null || queryInput.trim().isEmpty()) {
+                System.out.println("Invalid query. Please try again.");
+                continue;
+            }
 
+            // Exit condition
+            if (queryInput.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting...");
+                break;
+            }
 
-        PostingList[] postingLists = loadPostingLists(queryTerms);
+            System.out.println("Your query is: " + queryInput);
+            String[] queryTerms = parseQuery(queryInput);
 
-        // Perform scoring
-        ArrayList<Tuple<Long, Double>> results = ScorerConjunctive.scoreCollectionConjunctive(postingLists, documentIndex);
+            // Check if there are terms in the lexicon
+            if (queryTerms.length == 0) {
+                System.out.println("No document found for the query. Please try another query.");
+                continue;
+            }
+            System.out.println("Parsed Query: " + Arrays.toString(queryTerms));
 
-        // Display results
-        System.out.println("\n--- Scoring Results ---");
-        for (int i = 0; i < results.size(); i++) {
-            System.out.println((i + 1) + ") Document ID: " + results.get(i).getFirst() + ", Score: " + results.get(i).getSecond());
-        }
+            PostingList[] postingLists = loadPostingLists(queryTerms);
 
-        // Close resources
-        for (PostingList postingList : postingLists) {
-            if (postingList != null) {
-                postingList.closeList();
+            // Perform scoring
+            ArrayList<Tuple<Long, Double>> results = ScorerConjunctive.scoreCollectionConjunctive(postingLists, documentIndex);
+
+            // Display results
+            System.out.println("\n--- Scoring Results ---");
+            for (int i = 0; i < results.size(); i++) {
+                System.out.println((i + 1) + ") Document ID: " + results.get(i).getFirst() + ", Score: " + results.get(i).getSecond());
+            }
+
+            // Close resources
+            for (PostingList postingList : postingLists) {
+                if (postingList != null) {
+                    postingList.closeList();
+                }
             }
         }
 
         scanner.close();
-        System.out.println("--- End of Testing ---");
+        System.out.println("--- End ---");
     }
-
-
 
     private static PostingList[] loadPostingLists(String[] queryTerms) {
         PostingList[] postingLists = new PostingList[queryTerms.length];
 
         for (int i = 0; i < queryTerms.length; i++) {
-            //Instantiate the posting for the i-th query term
+            // Instantiate the posting for the i-th query term
             postingLists[i] = new PostingList();
-            //Load in memory the posting list of the i-th query term
+            // Load in memory the posting list of the i-th query term
             postingLists[i].openList(lexicon.getLexicon().get(queryTerms[i]));
         }
         return postingLists;
@@ -90,6 +99,9 @@ public class ConjunctiveScoreTester {
      * @return An array of terms extracted from the query after processing.
      */
     public static String[] parseQuery(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            throw new IllegalArgumentException("Query input cannot be null or empty.");
+        }
         // Divide the line using \t as delimiter to separate text
         StringTokenizer stringTokenizer = new StringTokenizer(query, "\t");
         String text = null;
@@ -113,13 +125,12 @@ public class ConjunctiveScoreTester {
 
         ArrayList<String> results = new ArrayList<>();
 
-        //Remove the query terms that are not present in the lexicon
-        for (String term : splittedText) { // Itera direttamente su splittedText
+        // Remove the query terms that are not present in the lexicon
+        for (String term : splittedText) {
             if (lexicon.getLexicon().get(term) != null) {
                 results.add(term);
             }
         }
         return results.toArray(new String[0]);
     }
-
 }

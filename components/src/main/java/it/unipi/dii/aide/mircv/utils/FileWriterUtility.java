@@ -3,7 +3,7 @@ package it.unipi.dii.aide.mircv.utils;
 import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.model.DocumentIndexEntry;
 import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
-import it.unipi.dii.aide.mircv.model.MergedLexiconEntry;
+import it.unipi.dii.aide.mircv.model.LexiconEntry;
 import it.unipi.dii.aide.mircv.model.SkipBlock;
 
 import java.io.*;
@@ -117,7 +117,7 @@ public class FileWriterUtility {
      * @param lexiconFile Is the random access file on which the term info is written.
      * @param termInfo Information of the term to be written.
      */
-    public static void writeMergedLexiconEntryToFile(RandomAccessFile lexiconFile, MergedLexiconEntry termInfo){
+    public static void writeMergedLexiconEntryToFile(RandomAccessFile lexiconFile, LexiconEntry termInfo){
         //Fill with whitespaces to keep the length standard
         String tmp = Utils.leftpad(termInfo.getTerm(), MergedLexiconEntryConfig.TERM_LENGTH);
 

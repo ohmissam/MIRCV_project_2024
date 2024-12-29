@@ -1,22 +1,20 @@
 package it.unipi.dii.aide.mircv.model;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileReaderUtility;
 import it.unipi.dii.aide.mircv.utils.MergedLexiconEntryConfig;
 
-public class MergedLexicon {
-    private HashMap<String, MergedLexiconEntry> lexicon;
+public class Lexicon {
+    private HashMap<String, LexiconEntry> lexicon;
     private RandomAccessFile lexiconFile;
 
 
-    public MergedLexicon() {
+    public Lexicon() {
         this.lexicon = new HashMap<>();
     }
 
-    public HashMap<String, MergedLexiconEntry> getLexicon() {
+    public HashMap<String, LexiconEntry> getLexicon() {
         return lexicon;
     }
 
@@ -24,7 +22,7 @@ public class MergedLexicon {
      * Load the lexicon in memory.
      * @return
      */
-    public void loadMergedLexicon() {
+    public void loadLexicon() {
         System.out.println("[LEXICON LOADER] Lexicon loading...");
         try {
             //Start the stream from the lexicon file
@@ -34,7 +32,7 @@ public class MergedLexicon {
             int offset = 0;
 
             //Accumulator for the current lexiconEntry reading
-            MergedLexiconEntry lexiconEntry;
+            LexiconEntry lexiconEntry;
 
             //While we're not at the end of the file
             while (offset < lexiconFile.length()) {

@@ -16,7 +16,9 @@ public class ScorerConjunctive {
      * @return an ordered array of tuples containing the document id and the score associated with the document.
      */
     public static ArrayList<Tuple<Long,Double>> scoreCollectionConjunctive(PostingList[] postingLists, DocumentIndex documentIndex) {
-        System.out.println("Initial posting lists: \n"+Arrays.toString(postingLists));
+        if(IS_DEBUG_MODE){
+            System.out.println("[DEBUG] Initial posting lists: \n"+Arrays.toString(postingLists));
+        }
         //Priority queue to store the document id and its score, based on the priority of the document
         RankedDocs rankedDocs = new RankedDocs(BEST_K_VALUE);
         ArrayList<Integer> essential = new ArrayList<>();
@@ -28,33 +30,38 @@ public class ScorerConjunctive {
 
         // Move the iterators of each posting list to the first position
         for (PostingList postingList : postingLists) {
-            System.out.println("Current posting list: \n" + postingList.toString());
 
-            if (postingList.getPostingListIterator().hasNext()) {
-                System.out.println("Has Next: "+postingList.getPostingListIterator());
-                postingList.getPostingListIterator().next();
-                System.out.println("Next: "+postingList.getPostingListIterator());
+            if (postingList.hasNext()) {
+                postingList.next();
                 orderedPostingLists.add(postingList);
             }
         }
 
         //sort the posting list in ascending order
         if(USE_BM25) {
-            System.out.println("USE_BM25: "+USE_BM25);
-            orderedPostingLists.sort(Comparator.comparingInt(o -> o.getMergedLexiconEntry().getBm25TermUpperBound()));
-            System.out.println("orderedPostingLists: "+Arrays.toString(orderedPostingLists.toArray()));
+            if(IS_DEBUG_MODE){
+                System.out.println("[DEBUG] USE_BM25: "+USE_BM25);
+            }
+            orderedPostingLists.sort(Comparator.comparingInt(o -> o.getLexiconEntry().getBm25TermUpperBound()));
         }
         else{
-            orderedPostingLists.sort(Comparator.comparingInt(o -> o.getMergedLexiconEntry().getTfidfTermUpperBound()));
+            if(IS_DEBUG_MODE){
+                System.out.println("[DEBUG] USE_BM25: "+USE_BM25);
+            }
+            orderedPostingLists.sort(Comparator.comparingInt(o -> o.getLexiconEntry().getTfidfTermUpperBound()));
+        }
+        if(IS_DEBUG_MODE){
+            System.out.println("-------------------");
+            System.out.println("[DEBUG] Ordered posting lists in essntial:");
         }
 
         for(int i = 0; i < orderedPostingLists.size(); i++){
             essential.add(i);
             postingLists[i] = orderedPostingLists.get(i);
-            System.out.println("postinglist["+i+"]: "+postingLists[i].toString());
             if(IS_DEBUG_MODE){
-                System.out.println("[DEBUG] Lexicon entry:\n" + postingLists[i].getMergedLexiconEntry());
-                System.out.println("BM25: "+postingLists[i].getMergedLexiconEntry().getBm25TermUpperBound());
+                System.out.println("[DEBUG] Postinglist["+i+"]: "+postingLists[i].toString());
+                System.out.println("[DEBUG] " + postingLists[i].getLexiconEntry());
+                System.out.println("[DEBUG] BM25: "+postingLists[i].getLexiconEntry().getBm25TermUpperBound());
             }
         }
 
@@ -98,11 +105,11 @@ public class ScorerConjunctive {
 
                     //Debug
                     if(IS_DEBUG_MODE) {
-                        System.out.println("finded a docID present in all positng lists");
+                        System.out.println("[DEBUG] Finded a docID present in all positng lists!");
                     }
                     long currentDocId = postingList.getPostingListIterator().getCurrentDocId();
                     int currentFrequency = postingList.getPostingListIterator().getCurrentFrequency();
-                    double idf = postingList.getMergedLexiconEntry().getInverseDocumentFrequency();
+                    double idf = postingList.getLexiconEntry().getInverseDocumentFrequency();
 
                     //If the scoring is BM25
                     if (USE_BM25) {
@@ -113,12 +120,12 @@ public class ScorerConjunctive {
                         score += tf_BM25 * idf;
 
                         if(IS_DEBUG_MODE){
-                            System.out.println("[DEBUG] bm25 docID " + maxDocid + ": " + score);
+                            System.out.println("[DEBUG] docID: " + maxDocid + " score: " + score);
                         }
 
                         double newMaxScore = score;
                         for(int j = index + 1; j < postingLists.length; j++){
-                            newMaxScore += postingLists[j].getMergedLexiconEntry().getBm25TermUpperBound();
+                            newMaxScore += postingLists[j].getLexiconEntry().getBm25TermUpperBound();
                         }
 
                         if(newMaxScore < rankedDocs.getThreshold()){
@@ -126,7 +133,7 @@ public class ScorerConjunctive {
                                 System.out.println("[DEBUG] New Max Score < rankedDocs.getThreshold: " + newMaxScore + "<" + rankedDocs.getThreshold() +  " docID " + maxDocid + " ruled out");
                             }
                             for(int j = index; j < postingLists.length; j++){
-                                postingLists[j].getPostingListIterator().next();
+                                postingLists[j].next();
                             }
                             break;
                         }
@@ -145,7 +152,7 @@ public class ScorerConjunctive {
 
                         double newMaxScore = score;
                         for(int j = index + 1; j < postingLists.length; j++){
-                            newMaxScore += postingLists[j].getMergedLexiconEntry().getTfidfTermUpperBound();
+                            newMaxScore += postingLists[j].getLexiconEntry().getTfidfTermUpperBound();
                         }
 
                         if(newMaxScore < rankedDocs.getThreshold()){
@@ -153,14 +160,14 @@ public class ScorerConjunctive {
                                 System.out.println("[DEBUG] New Max Score < rankedDocs.getThreshold: " + newMaxScore + "<" + rankedDocs.getThreshold() +  " docID " + maxDocid + " ruled out");
                             }
                             for(int j = index; j < postingLists.length; j++){
-                                postingLists[j].getPostingListIterator().next();
+                                postingLists[j].next();
                             }
                             break;
                         }
                     }
 
                     //Move the cursor to the next posting
-                    postingList.getPostingListIterator().next();
+                    postingList.next();
                     index++;
                 }
 
@@ -306,10 +313,10 @@ public class ScorerConjunctive {
         for(int i = 0; i < orderedPostingLists.size(); i++){
             //check the ranking metric
             if(USE_BM25){
-                tmp_count += orderedPostingLists.get(i).getMergedLexiconEntry().getBm25TermUpperBound();
+                tmp_count += orderedPostingLists.get(i).getLexiconEntry().getBm25TermUpperBound();
             }
             else {
-                tmp_count += orderedPostingLists.get(i).getMergedLexiconEntry().getTfidfTermUpperBound();
+                tmp_count += orderedPostingLists.get(i).getLexiconEntry().getTfidfTermUpperBound();
             }
 
             //check if the posting list is an essential or a non-essential one

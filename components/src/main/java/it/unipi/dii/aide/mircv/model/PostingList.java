@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
 import static it.unipi.dii.aide.mircv.utils.Config.ENABLE_COMPRESSION;
-import static it.unipi.dii.aide.mircv.utils.Config.IS_DEBUG_MODE;
 
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileReaderUtility;
+import static it.unipi.dii.aide.mircv.utils.Config.IS_DEBUG_MODE;
 
 public class PostingList {
     private final ArrayList<Posting> postingList = new ArrayList<>();  //String->docId
@@ -17,7 +17,7 @@ public class PostingList {
     private PostingListIterator postingListIterator; //Iterator to iterate over the posting list
 
     //mergedLexiconEntry of the term, used to retrieve the idf
-    private MergedLexiconEntry mergedLexiconEntry;
+    private LexiconEntry lexiconEntry;
     RandomAccessFile randomAccessFileDocIds;
     RandomAccessFile randomAccessFileFrequencies;
     RandomAccessFile randomAccessFileSkipBlocks;
@@ -38,8 +38,8 @@ public class PostingList {
         return postingListIterator;
     }
 
-    public MergedLexiconEntry getMergedLexiconEntry() {
-        return mergedLexiconEntry;
+    public LexiconEntry getLexiconEntry() {
+        return lexiconEntry;
     }
 
     /**
@@ -63,12 +63,12 @@ public class PostingList {
 //                    currentSkipBlock.skipBlockFreqLength);
         }else {//Read without compression
             docids = FileReaderUtility.readPostingListDocIds(randomAccessFileDocIds,
-                    this.getMergedLexiconEntry().getOffsetDocId() +
+                    this.getLexiconEntry().getOffsetDocId() +
                             this.getPostingListIterator().getCurrentSkipBlock().startDocidOffset,
                     this.getPostingListIterator().getCurrentSkipBlock().skipBlockDocidLength);
 
             frequencies = FileReaderUtility.readPostingListFrequencies(randomAccessFileFrequencies,
-                    this.getMergedLexiconEntry().getOffsetFrequency() +
+                    this.getLexiconEntry().getOffsetFrequency() +
                             this.getPostingListIterator().getCurrentSkipBlock().startFreqOffset,
                     this.getPostingListIterator().getCurrentSkipBlock().skipBlockFreqLength);
         }
@@ -84,14 +84,6 @@ public class PostingList {
             //Update the iterator for the current posting list
 //                iterator = this.iterator();
             postingListIterator.setPostingIterator(postingList.iterator());
-
-
-            if(Config.IS_DEBUG_MODE){
-                System.out.println("------------------");
-                System.out.println("[DEBUG] Partial posting list: " + this);
-        }
-
-
     }
 
     /**
@@ -134,31 +126,22 @@ public class PostingList {
                 this.postingListIterator.setNoMorePostings();
                 return;
             }
-
-            if (IS_DEBUG_MODE) {
-                System.out.println("[DEBUG] Max docId in the new skipBlock > searched docId: " +
-                        postingListIterator.getCurrentSkipBlock().maxDocid +" > "+ searchedDocId);
-            }
         }
 
-        boolean found = false;
 
         // Iterate over the postings until to find a docid greater or equal than the searched one
         Posting posting;
         while (postingListIterator.getPostingIterator().hasNext()) {
             posting = postingListIterator.getPostingIterator().next();
+
             if (posting.docId >= searchedDocId) {
                 // If the current posting docId is greater than or equal to the searched docId, return it
                 postingListIterator.setCurrentDocId(posting.getDocId());
                 postingListIterator.setCurrentFrequency(posting.getFrequency());
-                found=true;
                 return;
             }
         }
 
-        if(!found && postingListIterator.getSkipBlockIterator().hasNext()){
-            loadPostingList();
-        }
 
         // No postings are GEQ in the current posting list, we've finished the traversing the whole posting list
         if (!postingListIterator.getSkipBlockIterator().hasNext()) {
@@ -170,10 +153,10 @@ public class PostingList {
      * Loads the posting list of the given term in memory, this list uses the skipping mechanism.
      * @param lexiconEntry Lexicon entry of the term, used to retrieve the offsets and the lengths of the posting list
      */
-    public void openList(MergedLexiconEntry lexiconEntry){
+    public void openList(LexiconEntry lexiconEntry){
 
         //Set the terminfo of the posting list
-        this.mergedLexiconEntry = lexiconEntry;
+        this.lexiconEntry = lexiconEntry;
 
 
         //Open the stream with the posting list random access files
@@ -219,6 +202,29 @@ public class PostingList {
             throw new RuntimeException("Error closing random access files", e);
         }
     }
+
+    public Posting next() {
+        if (!postingListIterator.getPostingIterator().hasNext()) {
+            if (postingListIterator.getSkipBlockIterator().hasNext()) {
+                postingListIterator.setCurrentSkipBlock(postingListIterator.getSkipBlockIterator().next()) ;
+                loadPostingList();
+                return null;
+            } else {
+                postingListIterator.setNoMorePostings(true);
+                return null;
+            }
+        }
+
+        Posting posting = postingListIterator.getPostingIterator().next();
+        postingListIterator.setCurrentDocId(posting.getDocId());
+        postingListIterator.setCurrentFrequency(posting.getFrequency());
+        return posting;
+    }
+
+    public boolean hasNext() {
+        return postingListIterator.hasNext();
+    }
+
 
     @Override
     public String toString() {
