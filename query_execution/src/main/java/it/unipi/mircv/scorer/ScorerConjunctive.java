@@ -51,7 +51,7 @@ public class ScorerConjunctive {
             orderedPostingLists.sort(Comparator.comparingInt(o -> o.getLexiconEntry().getTfidfTermUpperBound()));
         }
         if(IS_DEBUG_MODE){
-            System.out.println("-------------------");
+            System.out.println("--------------------------------");
             System.out.println("[DEBUG] Ordered posting lists in essntial:");
         }
 
@@ -168,6 +168,7 @@ public class ScorerConjunctive {
 
                     //Move the cursor to the next posting
                     postingList.next();
+                    maxDocid=maxDocid(postingLists);
                     index++;
                 }
 
@@ -181,9 +182,10 @@ public class ScorerConjunctive {
                     //update the non-essential and the essential posting lists
                     if(rankedDocs.getThreshold() > 0){
                         updateEssentialPostingLists(essential, orderedPostingLists, rankedDocs.getThreshold());
-                        if(IS_DEBUG_MODE){
-                            System.out.println("[DEBUG] Threshold changed: " + old_threshold + " -> " + rankedDocs.getThreshold());
-                        }
+                    }
+                    if(IS_DEBUG_MODE && old_threshold!=rankedDocs.getThreshold()){
+                        System.out.println("--------------------------------");
+                        System.out.println("[DEBUG] Threshold changed! " + old_threshold + " -> " + rankedDocs.getThreshold());
                     }
                 }
             }
