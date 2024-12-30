@@ -1,5 +1,4 @@
 import java.util.*;
-
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.mircv.scorer.ScorerConjunctiveAndDisjunctive;
@@ -22,47 +21,39 @@ public class DemoInterface {
         if (Config.IS_DEBUG_MODE) {
             System.out.println("[DEBUG] Lexicon size: " + lexicon.getLexicon().size());
         }
+
         System.out.println("Loading the document index in memory...");
         documentIndex.loadDocumentIndex();
+
         if (Config.IS_DEBUG_MODE) {
             System.out.println("[DEBUG] Document index size: " + documentIndex.getDocumentIndex().size());
         }
+
         System.out.println("Data structures loaded in memory.");
 
         while (true) {
             System.out.println("\n--- Main Menu ---");
-            System.out.println("1. Search Query");
-            System.out.println("2. Exit");
-            System.out.println("3. Settings");
-            System.out.print("Select an option: ");
-            String option = scanner.nextLine();
+            System.out.println("Type your query or use the following commands:");
+            System.out.println("- Type 'settings' to configure settings");
+            System.out.println("- Type 'exit' to quit");
+            System.out.print("Enter your query or command: ");
+            String input = scanner.nextLine().trim();
 
-            switch (option) {
-                case "1":
-                    searchQuery(scanner);
-                    break;
-                case "2":
-                    System.out.println("Exiting...");
-                    scanner.close();
-                    return;
-                case "3":
-                    settingsMenu(scanner);
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting...");
+                scanner.close();
+                return;
+            } else if (input.equalsIgnoreCase("settings")) {
+                settingsMenu(scanner);
+            } else if (!input.isEmpty()) {
+                searchQuery(input);
+            } else {
+                System.out.println("Invalid input. Please try again.");
             }
         }
     }
 
-    private static void searchQuery(Scanner scanner) {
-        System.out.println("Enter a query:");
-        String queryInput = scanner.nextLine();
-
-        if (queryInput == null || queryInput.trim().isEmpty()) {
-            System.out.println("Invalid query. Please try again.");
-            return;
-        }
-
+    private static void searchQuery(String queryInput) {
         System.out.println("Your query is: " + queryInput);
         String[] queryTerms = parseQuery(queryInput);
 
@@ -78,13 +69,11 @@ public class DemoInterface {
         PostingList[] postingLists = loadPostingLists(queryTerms);
         ArrayList<Tuple<Long, Double>> results;
 
-        if(ScorerConfig.USE_CONJUNCTIVE_SCORER){
+        if (ScorerConfig.USE_CONJUNCTIVE_SCORER) {
             results = ScorerConjunctiveAndDisjunctive.scoreCollectionConjunctive(postingLists, documentIndex);
-        }
-        else{
+        } else {
             results = ScorerConjunctiveAndDisjunctive.scoreCollectionDisjunctive(postingLists, documentIndex);
         }
-
 
         System.out.println("\n--- Scoring Results ---");
         for (int i = 0; i < results.size(); i++) {
@@ -138,6 +127,7 @@ public class DemoInterface {
         if (query == null || query.trim().isEmpty()) {
             throw new IllegalArgumentException("Query input cannot be null or empty.");
         }
+
         StringTokenizer stringTokenizer = new StringTokenizer(query, "\t");
         String text = null;
 
