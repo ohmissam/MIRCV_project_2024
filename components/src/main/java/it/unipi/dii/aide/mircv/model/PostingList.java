@@ -206,8 +206,11 @@ public class PostingList {
     public Posting next() {
         if (!postingListIterator.getPostingIterator().hasNext()) {
             if (postingListIterator.getSkipBlockIterator().hasNext()) {
-                postingListIterator.setCurrentSkipBlock(postingListIterator.getSkipBlockIterator().next()) ;
+                postingListIterator.setCurrentSkipBlock(postingListIterator.getSkipBlockIterator().next());
                 loadPostingList();
+                Posting posting = postingListIterator.getPostingIterator().next();
+                postingListIterator.setCurrentDocId(posting.getDocId());
+                postingListIterator.setCurrentFrequency(posting.getFrequency());
                 return null;
             } else {
                 postingListIterator.setNoMorePostings(true);

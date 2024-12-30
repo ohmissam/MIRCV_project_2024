@@ -89,10 +89,13 @@ public class PostingListIterator {
         return postingIterator.hasNext() || skipBlockIterator.hasNext();
     }
 
+    /**
+     * Get if the current posting list has no more postings.
+     * @return true if the current posting list has no more postings, false otherwise.
+     */
     public boolean isNoMorePostings() {
         return noMorePostings;
     }
-
 
     // Helper function to set the flag when there are no more postings
     public void setNoMorePostings() {

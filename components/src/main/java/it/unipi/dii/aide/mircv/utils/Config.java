@@ -44,7 +44,7 @@ public class Config {
     //Flag to enable compression
     public static final boolean ENABLE_COMPRESSION = false;
     //Flag to enable debug mode
-    public static final boolean IS_DEBUG_MODE = true;
+    public static final boolean IS_DEBUG_MODE = false;
 
     // Threshold of memory over which the index must be flushed to disk
     public static final double PERCENTAGE = 0.7;
