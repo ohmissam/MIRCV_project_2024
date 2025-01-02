@@ -50,6 +50,10 @@ public class SkipBlock {
         this.skipBlockFreqLength = skipBlockFreqLength;
         this.maxDocid = maxDocid;
     }
+    public void setFreqInfo(long startFreqOffset, int skipBlockFreqLength) {
+        this.startFreqOffset = startFreqOffset;
+        this.skipBlockFreqLength = skipBlockFreqLength;
+    }
 
     //getter method
     public long getStartDocidOffset() {
@@ -70,6 +74,26 @@ public class SkipBlock {
 
     public long getMaxDocid() {
         return maxDocid;
+    }
+
+    public void setStartDocidOffset(long startDocidOffset) {
+        this.startDocidOffset = startDocidOffset;
+    }
+
+    public void setSkipBlockDocidLength(int skipBlockDocidLength) {
+        this.skipBlockDocidLength = skipBlockDocidLength;
+    }
+
+    public void setStartFreqOffset(long startFreqOffset) {
+        this.startFreqOffset = startFreqOffset;
+    }
+
+    public void setSkipBlockFreqLength(int skipBlockFreqLength) {
+        this.skipBlockFreqLength = skipBlockFreqLength;
+    }
+
+    public void setMaxDocid(long maxDocid) {
+        this.maxDocid = maxDocid;
     }
 
     @Override

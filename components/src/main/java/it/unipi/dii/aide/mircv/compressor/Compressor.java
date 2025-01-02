@@ -187,7 +187,7 @@ public class Compressor {
         }
 
         //Set the max score parameters
-        maxscores..setFirst((double) maxFreq);
+        maxscores.setFirst((double) maxFreq);
         maxscores.setSecond(tf_maxScoreBm25);
 
         //Array used to convert the arrayList into a byte array

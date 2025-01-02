@@ -4,7 +4,6 @@ import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.mircv.scorer.ScorerConjunctiveAndDisjunctive;
 import it.unipi.dii.aide.mircv.model.*;
 import utils.ScorerConfig;
-import utils.Tuple;
 
 public class DemoInterface {
 
