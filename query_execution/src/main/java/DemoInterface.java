@@ -8,25 +8,26 @@ import utils.Tuple;
 
 public class DemoInterface {
 
-    private static Lexicon lexicon = new Lexicon();
-    private static DocumentIndex documentIndex = new DocumentIndex();
+    private static final Lexicon lexicon = new Lexicon();
+    private static final DocumentIndex documentIndex = new DocumentIndex();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("--- Welcome to the Demo Interface ---");
+        System.out.println("--- Welcome! ---");
+        System.out.println("Information retrieval program has started.");
         System.out.println("Loading the lexicon in memory...");
         lexicon.loadLexicon();
 
-        if (Config.IS_DEBUG_MODE) {
+        if (ScorerConfig.IS_DEBUG_MODE) {
             System.out.println("[DEBUG] Lexicon size: " + lexicon.getLexicon().size());
         }
 
         System.out.println("Loading the document index in memory...");
         documentIndex.loadDocumentIndex();
 
-        if (Config.IS_DEBUG_MODE) {
-            System.out.println("[DEBUG] Document index size: " + documentIndex.getDocumentIndex().size());
+        if (ScorerConfig.IS_DEBUG_MODE) {
+            System.out.println("[DEBUG] Document index size: " + DocumentIndex.getDocumentIndex().size());
         }
 
         System.out.println("Data structures loaded in memory.");
@@ -42,6 +43,8 @@ public class DemoInterface {
             if (input.equalsIgnoreCase("exit")) {
                 System.out.println("Exiting...");
                 scanner.close();
+                System.out.println("Program closed.");
+                System.out.println("--- Bye! ---");
                 return;
             } else if (input.equalsIgnoreCase("settings")) {
                 settingsMenu(scanner);
@@ -91,8 +94,9 @@ public class DemoInterface {
         while (true) {
             System.out.println("\n--- Settings Menu ---");
             System.out.println("1. Toggle USE_BM25 (Current: " + ScorerConfig.USE_BM25 + ")");
-            System.out.println("2. Toggle IS_DEBUG_MODE (Current: " + ScorerConfig.IS_DEBUG_MODE + ")");
-            System.out.println("3. Back to Main Menu");
+            System.out.println("2. Toggle USE_CONJUNCTIVE_SCORER (Current: " + ScorerConfig.USE_CONJUNCTIVE_SCORER + ")");
+            System.out.println("3. Toggle IS_DEBUG_MODE (Current: " + ScorerConfig.IS_DEBUG_MODE + ")");
+            System.out.println("4. Back to Main Menu");
             System.out.print("Select an option: ");
             String option = scanner.nextLine();
 
@@ -102,10 +106,14 @@ public class DemoInterface {
                     System.out.println("USE_BM25 is now set to: " + ScorerConfig.USE_BM25);
                     break;
                 case "2":
+                    ScorerConfig.setUseConjunctiveScorer(!ScorerConfig.USE_CONJUNCTIVE_SCORER);
+                    System.out.println("USE_CONJUNCTIVE_SCORER is now set to: " + ScorerConfig.USE_CONJUNCTIVE_SCORER);
+                    break;
+                case "3":
                     ScorerConfig.setDebugMode(!ScorerConfig.IS_DEBUG_MODE);
                     System.out.println("IS_DEBUG_MODE is now set to: " + ScorerConfig.IS_DEBUG_MODE);
                     break;
-                case "3":
+                case "4":
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");

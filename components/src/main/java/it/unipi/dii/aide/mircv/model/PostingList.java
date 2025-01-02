@@ -16,28 +16,52 @@ public class PostingList {
     //variables for query execution:
     private PostingListIterator postingListIterator; //Iterator to iterate over the posting list
 
-    //mergedLexiconEntry of the term, used to retrieve the idf
+    // LexiconEntry of the term, used to retrieve the idf
     private LexiconEntry lexiconEntry;
+
     RandomAccessFile randomAccessFileDocIds;
     RandomAccessFile randomAccessFileFrequencies;
     RandomAccessFile randomAccessFileSkipBlocks;
 
+    /**
+     * Default constructor for PostingList. Initializes an empty posting list and its iterator.
+     */
     public PostingList() {
         this.postingListIterator = new PostingListIterator();
     }
 
+    /**
+     * Constructor that initializes the posting list with a single posting.
+     * @param posting The posting to be added to the posting list.
+     */
     public PostingList(Posting posting) {
         this.postingList.add(posting);
     }
 
+    public void addPosting(Posting posting){
+        this.postingList.add(posting);
+    }
+
+    /**
+     * Returns the list of postings.
+     * @return An ArrayList of Posting objects.
+     */
     public ArrayList<Posting> getPostingList() {
         return postingList;
     }
 
+    /**
+     * Returns the iterator for the posting list.
+     * @return The PostingListIterator object.
+     */
     public PostingListIterator getPostingListIterator() {
         return postingListIterator;
     }
 
+    /**
+     * Returns the lexicon entry associated with the current posting list.
+     * @return The LexiconEntry object.
+     */
     public LexiconEntry getLexiconEntry() {
         return lexiconEntry;
     }
@@ -203,6 +227,10 @@ public class PostingList {
         }
     }
 
+    /**
+     * Retrieves the next posting in the current posting list. If the current skipblock is exhausted, it moves to the next block.
+     * @return The next Posting object or null if there are no more postings.
+     */
     public Posting next() {
         if (!postingListIterator.getPostingIterator().hasNext()) {
             if (postingListIterator.getSkipBlockIterator().hasNext()) {
@@ -224,11 +252,18 @@ public class PostingList {
         return posting;
     }
 
+    /**
+     * Checks if there are more postings available in the current posting list or its skip blocks.
+     * @return True if more postings are available, false otherwise.
+     */
     public boolean hasNext() {
         return postingListIterator.hasNext();
     }
 
-
+    /**
+     * Provides a string representation of the posting list.
+     * @return A string describing the posting list.
+     */
     @Override
     public String toString() {
         return "PostingList = " + postingList;

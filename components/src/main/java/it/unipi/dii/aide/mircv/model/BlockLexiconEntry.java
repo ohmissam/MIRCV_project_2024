@@ -1,6 +1,8 @@
 package it.unipi.dii.aide.mircv.model;
 
-
+/**
+ * Class that holds the information about a lexicon entry of a single block.
+ */
 public class BlockLexiconEntry {
     private long offsetDocId;
     private long offsetFrequency;
@@ -12,12 +14,12 @@ public class BlockLexiconEntry {
         this.offsetFrequency = 0;
         this.postingListLength = 0;
     }
+
     public BlockLexiconEntry(long offsetDocId, long offsetFrequency, int postingListLength) {
         this.offsetDocId = offsetDocId;
         this.offsetFrequency = offsetFrequency;
         this.postingListLength = postingListLength;
     }
-
 
     public void set(int offsetDocId, int offsetFrequency, int postingListLength) {
         this.setOffsetDocId(offsetDocId);

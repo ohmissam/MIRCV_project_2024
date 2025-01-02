@@ -22,8 +22,6 @@ public class SkipBlock {
     long maxDocid;
 
 
-
-
     /**
      * Constructor for the SkipBlock class.
      * @param startDocidOffset starting offset of the respective doc id block in the docids.txt file.
@@ -37,6 +35,14 @@ public class SkipBlock {
         this.maxDocid = maxDocid;
     }
 
+    /**
+     * Constructor for the SkipBlock class.
+     * @param startDocidOffset the starting offset for document IDs in the block.
+     * @param skipBlockDocidLength the length of the document ID segment in the block.
+     * @param startFreqOffset the starting offset for term frequencies in the block.
+     * @param skipBlockFreqLength the length of the frequency segment in the block.
+     * @param maxDocid the maximum document ID within this skip block.
+     */
     public SkipBlock(long startDocidOffset, int skipBlockDocidLength, long startFreqOffset, int skipBlockFreqLength, long maxDocid) {
         this.startDocidOffset = startDocidOffset;
         this.skipBlockDocidLength = skipBlockDocidLength;
@@ -45,11 +51,7 @@ public class SkipBlock {
         this.maxDocid = maxDocid;
     }
 
-    public void setFreqInfo(long startFreqOffset, int skipBlockFreqLength) {
-        this.startFreqOffset = startFreqOffset;
-        this.skipBlockFreqLength = skipBlockFreqLength;
-    }
-
+    //getter method
     public long getStartDocidOffset() {
         return startDocidOffset;
     }

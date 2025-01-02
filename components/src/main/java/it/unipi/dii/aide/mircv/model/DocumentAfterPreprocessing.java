@@ -2,6 +2,9 @@ package it.unipi.dii.aide.mircv.model;
 
 import java.util.Arrays;
 
+/**
+ * Class that holds the information about a document after the preprocessing step.
+ */
 public class DocumentAfterPreprocessing {
 
     private long docId;             // Unique identifier for the document

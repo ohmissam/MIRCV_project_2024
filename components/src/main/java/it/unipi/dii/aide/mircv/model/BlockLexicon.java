@@ -3,6 +3,9 @@ package it.unipi.dii.aide.mircv.model;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class that holds the information about a lexicon of a single block.
+ */
 public class BlockLexicon {
 
     /*String -> term*/

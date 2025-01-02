@@ -6,7 +6,9 @@ import it.unipi.dii.aide.mircv.model.SkipBlock;
 import static it.unipi.dii.aide.mircv.utils.Config.IS_DEBUG_MODE;
 import java.util.Collections;
 
-
+/**
+ * Class that holds the posting and skip block iterators logic of a Posting List object.
+ */
 public class PostingListIterator {
     private Iterator<Posting> postingIterator;
     private Iterator<SkipBlock> skipBlockIterator;
@@ -18,22 +20,7 @@ public class PostingListIterator {
     public PostingListIterator() {
     }
 
-    public PostingListIterator(Iterator<Posting> postingIterator, Iterator<SkipBlock> skipBlockIterator) {
-        this.postingIterator = postingIterator;
-        this.skipBlockIterator = skipBlockIterator;
-        this.noMorePostings = false;
-
-        // Inizializza il primo skip block
-        if (skipBlockIterator.hasNext()) {
-            this.currentSkipBlock = skipBlockIterator.next();
-        }
-    }
-
-    //Inizializza iteratore vuoto per gli skip block, usato in loadPostingList di PostingList
-    public PostingListIterator(Iterator<Posting> postingIterator) {
-        this(postingIterator, Collections.emptyIterator());
-    }
-
+    // getter and setter methods
     public Iterator<SkipBlock> getSkipBlockIterator() {
         return skipBlockIterator;
     }
@@ -78,7 +65,7 @@ public class PostingListIterator {
         this.noMorePostings = noMorePostings;
     }
 
-    // Advances to the next skip block if available, updating the current skip block.
+    /** Advances to the next skip block if available, updating the current skip block.*/
     public void nextSkipBlock() {
         if (skipBlockIterator.hasNext()) {
             currentSkipBlock = skipBlockIterator.next();
