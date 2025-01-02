@@ -5,9 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import static it.unipi.dii.aide.mircv.compressor.Compressor.variableByteEncodeDocId;
+import static it.unipi.dii.aide.mircv.compressor.Compressor.variableByteEncodeFreq;
 import static it.unipi.dii.aide.mircv.utils.Config.*;
 import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.*;
 import it.unipi.dii.aide.mircv.model.*;
@@ -52,7 +55,8 @@ public class IndexMerger {
         long docIdsOffset = 0;
         long frequenciesOffset = 0;
         long skipBlocksOffset = 0;
-
+        byte[] docIdsCompressed;
+        byte[] frequenciesCompressed;
         //Array of the current offset reached in each lexicon block
         int[] lexicon_offsets = new int[NUMBER_OF_BLOCKS];
 
@@ -176,7 +180,68 @@ public class IndexMerger {
             double tf_maxScoreBm25 = 0;
 
             if(ENABLE_COMPRESSION){
-                System.out.println("TO DO Compression");
+                System.out.println("[DEBUG] Start COMPRESSION");
+
+
+                Tuple<Double, Double> maxscoreTuple = new Tuple<>(0.0,0.0);
+
+                //Compress the list of docIds using VBE and create the list of skip blocks for the list of docids
+                docIdsCompressed = variableByteEncodeDocId(docIds, skipBlocks);
+
+                //Compress the list of frequencies using VBE and update the frequencies information in the skip blocks
+                frequenciesCompressed = variableByteEncodeFreq(frequencies, skipBlocks, docIds, maxscoreTuple, documentIndex, statistics);
+
+                //Write the docIds and frequencies of the current term in the respective files
+                try {
+                    docIdsFile.write(docIdsCompressed);
+                    frequenciesFile.write(frequenciesCompressed);
+                } catch (IOException e) {
+                    System.err.println("[MERGER] File not found: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
+
+                //Compute idf
+                double idf = Math.log(statistics.getNumberOfDocuments()/ (double)docIds.size())/Math.log(2);
+
+                //Compute the tfidf term upper bound
+                int tfidfTermUpperBound = (int) Math.ceil((1 + Math.log(maxscoreTuple.getFirst()) / Math.log(2))*idf);
+
+                //Compute the bm25 term upper bound
+                int bm25TermUpperBound = (int) Math.ceil(maxscoreTuple.getSecond()*idf);
+
+                BlockLexicon blockLexicon=new BlockLexicon();
+                BlockLexiconEntry blockLexiconEntry=new BlockLexiconEntry(docIdsOffset,frequenciesOffset,docIds.size());
+                HashMap<String,BlockLexiconEntry> hashMap=new HashMap<>();
+                hashMap.put(minTerm,blockLexiconEntry);
+                blockLexicon.setLexicon(hashMap);
+/*
+                lexiconEntry = new TermInfo(
+                        minTerm,                     //Term
+                        docIdsOffset,                //offset in the docids file in which the docids list starts
+                        frequenciesOffset,           //offset in the frequencies file in which the frequencies list starts
+                        idf,                         //idf
+                        docIdsCompressed.length,     //length in bytes of the compressed docids list
+                        frequenciesCompressed.length,//length in bytes of the compressed frequencies list
+                        docIds.size(),               //Length of the posting list of the current term
+                        skipBlocksOffset,            //Offset of the SkipBlocks in the SkipBlocks file
+                        skipBlocks.size(),           //number of SkipBlocks
+                        tfidfTermUpperBound,         //term upper bound for the tfidf
+                        bm25TermUpperBound           //term upper bound for the bm25
+                );
+
+                //For DEBUG
+                if(debug && j%25000 == 0) {
+                    System.out.println("[DEBUG] Current lexicon entry: " + lexiconEntry);
+                    System.out.println("[DEBUG] Number of skipBlocks created: " + skipBlocks.size());
+                }
+*/
+                blockLexicon.writeToFile(lexiconFile, lexiconEntry);
+
+                docIdsOffset += docIdsCompressed.length;
+                frequenciesOffset += frequenciesCompressed.length;
+
+                System.out.println("[DEBUG] END COMPRESSION");
+
             }
             else{ //no compression
                 try {

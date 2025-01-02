@@ -2,7 +2,7 @@ package it.unipi.mircv.scorer;
 
 import java.util.Iterator;
 import java.util.PriorityQueue;
-import utils.Tuple;
+import it.unipi.dii.aide.mircv.model.Tuple;
 
 
 /**

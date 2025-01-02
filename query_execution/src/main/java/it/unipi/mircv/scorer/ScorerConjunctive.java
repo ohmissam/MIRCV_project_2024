@@ -1,7 +1,7 @@
 package it.unipi.mircv.scorer;
 import it.unipi.dii.aide.mircv.model.*;
 import static utils.ScorerConfig.*;
-import utils.Tuple;
+import it.unipi.dii.aide.mircv.model.Tuple;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;

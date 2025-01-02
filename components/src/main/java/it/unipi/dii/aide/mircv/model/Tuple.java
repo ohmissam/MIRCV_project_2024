@@ -1,4 +1,4 @@
-package utils;
+package it.unipi.dii.aide.mircv.model;
 
 public class Tuple<K, V> {
 

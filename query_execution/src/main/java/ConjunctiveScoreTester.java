@@ -3,7 +3,7 @@ import java.util.*;
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.mircv.scorer.ScorerConjunctive;
 import it.unipi.dii.aide.mircv.model.*;
-import utils.Tuple;
+import it.unipi.dii.aide.mircv.model.Tuple;
 
 public class ConjunctiveScoreTester {
 
