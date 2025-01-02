@@ -83,7 +83,8 @@ public class IndexMerger {
 
         //Contains the list of all the blocks containing the current min term
         LinkedList<Integer> blocksWithMinTerm = new LinkedList<>();
-
+        //TermInfo to keep the term's information to be written in the lexicon file
+        LexiconEntry lexiconEntry;
         //Array to store the docIds and frequencies of the posting list of the current min term in the current block
         ArrayList<Long> docIds = new ArrayList<>();
         ArrayList<Integer> frequencies = new ArrayList<>();
@@ -214,8 +215,8 @@ public class IndexMerger {
                 HashMap<String,BlockLexiconEntry> hashMap=new HashMap<>();
                 hashMap.put(minTerm,blockLexiconEntry);
                 blockLexicon.setLexicon(hashMap);
-/*
-                lexiconEntry = new TermInfo(
+
+                lexiconEntry = new LexiconEntry(
                         minTerm,                     //Term
                         docIdsOffset,                //offset in the docids file in which the docids list starts
                         frequenciesOffset,           //offset in the frequencies file in which the frequencies list starts
@@ -228,7 +229,7 @@ public class IndexMerger {
                         tfidfTermUpperBound,         //term upper bound for the tfidf
                         bm25TermUpperBound           //term upper bound for the bm25
                 );
-
+/*
                 //For DEBUG
                 if(debug && j%25000 == 0) {
                     System.out.println("[DEBUG] Current lexicon entry: " + lexiconEntry);
@@ -320,7 +321,7 @@ public class IndexMerger {
 
                 //Instantiate a new LexiconEntry object with the current term information, here we use the information in
                 //the docids and frequencies objects
-                LexiconEntry lexiconEntry = new LexiconEntry(
+                lexiconEntry = new LexiconEntry(
                         minTerm,
                         docIdsOffset,                //offset in the docids file in which the docids list starts
                         frequenciesOffset,           //offset in the frequencies file in which the frequencies list starts
