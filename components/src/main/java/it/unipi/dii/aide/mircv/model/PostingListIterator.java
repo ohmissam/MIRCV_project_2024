@@ -6,7 +6,9 @@ import it.unipi.dii.aide.mircv.model.SkipBlock;
 import static it.unipi.dii.aide.mircv.utils.Config.IS_DEBUG_MODE;
 import java.util.Collections;
 
-
+/**
+ * Class that holds the posting and skip block iterators logic of a Posting List object.
+ */
 public class PostingListIterator {
     private Iterator<Posting> postingIterator;
     private Iterator<SkipBlock> skipBlockIterator;
@@ -18,28 +20,25 @@ public class PostingListIterator {
     public PostingListIterator() {
     }
 
-    public PostingListIterator(Iterator<Posting> postingIterator, Iterator<SkipBlock> skipBlockIterator) {
-        this.postingIterator = postingIterator;
-        this.skipBlockIterator = skipBlockIterator;
-        this.noMorePostings = false;
-
-        // Inizializza il primo skip block
-        if (skipBlockIterator.hasNext()) {
-            this.currentSkipBlock = skipBlockIterator.next();
-        }
-    }
-
-    //Inizializza iteratore vuoto per gli skip block, usato in loadPostingList di PostingList
-    public PostingListIterator(Iterator<Posting> postingIterator) {
-        this(postingIterator, Collections.emptyIterator());
-    }
-
+    // getter and setter methods
     public Iterator<SkipBlock> getSkipBlockIterator() {
         return skipBlockIterator;
     }
 
     public Iterator<Posting> getPostingIterator() {
         return postingIterator;
+    }
+
+    public SkipBlock getCurrentSkipBlock() {
+        return currentSkipBlock;
+    }
+
+    public long getCurrentDocId() {
+        return currentDocId;
+    }
+
+    public int getCurrentFrequency() {
+        return currentFrequency;
     }
 
     public void setPostingIterator(Iterator<Posting> postingIterator) {
@@ -58,23 +57,15 @@ public class PostingListIterator {
         this.currentFrequency = currentFrequency;
     }
 
-    public Posting next() {
-        if (!postingIterator.hasNext()) {
-            if (skipBlockIterator.hasNext()) {
-                currentSkipBlock = skipBlockIterator.next();
-                return null;
-            } else {
-                noMorePostings = true;
-                return null;
-            }
-        }
-
-        Posting posting = postingIterator.next();
-        currentDocId = posting.getDocId();
-        currentFrequency = posting.getFrequency();
-        return posting;
+    public void setCurrentSkipBlock(SkipBlock currentSkipBlock) {
+        this.currentSkipBlock = currentSkipBlock;
     }
 
+    public void setNoMorePostings(boolean noMorePostings) {
+        this.noMorePostings = noMorePostings;
+    }
+
+    /** Advances to the next skip block if available, updating the current skip block.*/
     public void nextSkipBlock() {
         if (skipBlockIterator.hasNext()) {
             currentSkipBlock = skipBlockIterator.next();
@@ -85,26 +76,34 @@ public class PostingListIterator {
         return postingIterator.hasNext() || skipBlockIterator.hasNext();
     }
 
+    /**
+     * Get if the current posting list has no more postings.
+     * @return true if the current posting list has no more postings, false otherwise.
+     */
     public boolean isNoMorePostings() {
         return noMorePostings;
     }
-
 
     // Helper function to set the flag when there are no more postings
     public void setNoMorePostings() {
         noMorePostings = true;
     }
 
-
-    public SkipBlock getCurrentSkipBlock() {
-        return currentSkipBlock;
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PostingListIterator {")
+                .append("\n  currentDocId: ").append(currentDocId)
+                .append("\n  currentFrequency: ").append(currentFrequency)
+                .append("\n  noMorePostings: ").append(noMorePostings)
+                .append("\n  currentSkipBlock: ").append(currentSkipBlock != null ? currentSkipBlock.toString() : "null")
+                .append("\n  postingIterator: ").append(postingIterator != null && postingIterator.hasNext() ? "hasNext" : "empty")
+                .append("\n  skipBlockIterator: ").append(skipBlockIterator != null && skipBlockIterator.hasNext() ? "hasNext" : "empty")
+                .append("\n}");
+        return sb.toString();
     }
 
-    public long getCurrentDocId() {
-        return currentDocId;
-    }
 
-    public int getCurrentFrequency() {
-        return currentFrequency;
-    }
+
+
 }

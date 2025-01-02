@@ -24,6 +24,10 @@ public class DocumentPreProcessor {
     // Flag to enable both stemming and stopword removal
     private static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = Config.ENABLE_STEMMING_AND_STOPWORD_REMOVAL;
 
+    public static List<String> getStopWords() {
+        return stopWords;
+    }
+
     /**
      * Process a single document by tokenizing, removing stopwords, and applying stemming if enabled.
      *
@@ -77,7 +81,7 @@ public class DocumentPreProcessor {
      * @param text String containing the text to be cleaned
      * @return Cleaned text without punctuation
      */
-    private static String removePunctuation(String text) {
+    public static String removePunctuation(String text) {
         // Replace all punctuation marks with a whitespace character, then trim the string to remove leading/trailing whitespaces
         return text.replaceAll("[^\\w\\s]", " ").trim();
     }
@@ -101,7 +105,7 @@ public class DocumentPreProcessor {
      * @return Array of tokens without the stopwords
      */
 
-    private static String[] removeStopWords(String[] text, List<String> stopwords) {
+    public static String[] removeStopWords(String[] text, List<String> stopwords) {
         // Use streams for efficient performance in removing stopwords
         ArrayList<String> words = Stream.of(text)
                 .collect(Collectors.toCollection(ArrayList<String>::new));
@@ -115,7 +119,7 @@ public class DocumentPreProcessor {
      * @param terms Array of tokens to be stemmed
      * @return Array of stemmed tokens
      */
-    private static String[] getStems(String[] terms) {
+    public static String[] getStems(String[] terms) {
         // Instance of the Porter Stemmer
         PorterStemmer porterStemmer = new PorterStemmer();
 

@@ -8,6 +8,9 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class that holds the information about a lexicon of a single block.
+ */
 import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.*;
 import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.OFFSET_DOCIDS_LENGTH;
 import static it.unipi.dii.aide.mircv.utils.BlockLexiconEntryConfig.OFFSET_FREQUENCIES_LENGTH;

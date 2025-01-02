@@ -2,9 +2,13 @@ package it.unipi.dii.aide.mircv.model;
 
 import java.util.*;
 
+/**
+ * Represents an inverted index, which maps terms to their respective posting lists.
+ */
 public class InvertedIndex {
 
     private HashMap<String, PostingList> invertedIndex;
+
 
     public InvertedIndex(){
         invertedIndex = new HashMap<>();

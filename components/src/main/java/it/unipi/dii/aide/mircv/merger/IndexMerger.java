@@ -320,7 +320,7 @@ public class IndexMerger {
 
                 //Instantiate a new LexiconEntry object with the current term information, here we use the information in
                 //the docids and frequencies objects
-                MergedLexiconEntry mergedLexiconEntry = new MergedLexiconEntry(
+                LexiconEntry lexiconEntry = new LexiconEntry(
                         minTerm,
                         docIdsOffset,                //offset in the docids file in which the docids list starts
                         frequenciesOffset,           //offset in the frequencies file in which the frequencies list starts
@@ -336,11 +336,11 @@ public class IndexMerger {
 
                 //For DEBUG
                 if(IS_DEBUG_MODE && numberOfTermsElaborated%25000 == 0) {
-                    System.out.println("[DEBUG] Current lexicon entry: " + mergedLexiconEntry);
+                    System.out.println("[DEBUG] Current lexicon entry: " + lexiconEntry);
                     System.out.println("[DEBUG] Number of skipBlocks created: " + skipBlocks.size());
                 }
 
-                FileWriterUtility.writeMergedLexiconEntryToFile(lexiconFile, mergedLexiconEntry);
+                FileWriterUtility.writeMergedLexiconEntryToFile(lexiconFile, lexiconEntry);
 
                 docIdsOffset += 8L*docIds.size();
                 frequenciesOffset += 4L*frequencies.size();

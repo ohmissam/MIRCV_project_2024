@@ -84,4 +84,17 @@ public class DocumentIndex {
 
 
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[DOCUMENT INDEX]\n");
+
+        for (Map.Entry<Long, DocumentIndexEntry> entry : documentIndex.entrySet()) {
+            sb.append("DocID: ").append(entry.getKey())
+                    .append(" -> ").append(entry.getValue().toString()).append("\n");
+        }
+
+        return sb.toString();
+    }
 }

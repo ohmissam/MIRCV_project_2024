@@ -1,6 +1,7 @@
 package it.unipi.dii.aide.mircv.utils;
 
 import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
+import it.unipi.dii.aide.mircv.model.LexiconEntry;
 import it.unipi.dii.aide.mircv.model.SkipBlock;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -197,5 +198,53 @@ public class FileReaderUtility {
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * Read the next term from the lexicon file.
+     * @param offset starting offset of the next term to be read
+     * @return The next term from the lexicon file.
+     */
+    public static LexiconEntry readNextTerm(RandomAccessFile lexiconFile, int offset){
+        //Array of bytes in which put the term
+        byte[] termBytes = new byte[MergedLexiconEntryConfig.TERM_LENGTH];
+
+        //String containing the term
+        String term;
+
+        //TermInfo containing the term information to be returned
+        LexiconEntry lexiconEntry;
+
+        try {
+            //Set the file pointer to the start of the lexicon entry
+            lexiconFile.seek(offset);
+
+            //Read the first 48 containing the term
+            lexiconFile.readFully(termBytes, 0, MergedLexiconEntryConfig.TERM_LENGTH);
+
+            //Convert the bytes to a string and trim it
+            term = new String(termBytes, Charset.defaultCharset()).trim();
+
+            //Instantiate the TermInfo object reading the next 3 integers from the file
+            lexiconEntry = new LexiconEntry(term,   //Term
+                    lexiconFile.readLong(),  //Offset docids file
+                    lexiconFile.readLong(),  //Offset frequencies file
+                    lexiconFile.readDouble(), //idf
+                    lexiconFile.readInt(),  //Length in bytes of the docids list
+                    lexiconFile.readInt(),  //Length in bytes of the frequencies list
+                    lexiconFile.readInt(),  //Length of the term's posting list
+                    lexiconFile.readLong(), //Offset of the skipBlocks in the skipBlocks file
+                    lexiconFile.readInt(),  //Number of skipBlocks
+                    lexiconFile.readInt(), //TFIDF term upper bound
+                    lexiconFile.readInt()  //BM25 term lower bound
+            );
+
+
+            return lexiconEntry;
+
+        } catch (IOException e) {
+            //System.err.println("[ReadNextTermInfo] EOF reached while reading the next lexicon entry");
+            return null;
+        }
     }
 }
