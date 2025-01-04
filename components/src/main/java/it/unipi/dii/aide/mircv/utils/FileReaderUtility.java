@@ -1,6 +1,7 @@
 package it.unipi.dii.aide.mircv.utils;
 
 import it.unipi.dii.aide.mircv.model.BlockLexiconEntry;
+import it.unipi.dii.aide.mircv.compressor.Compressor;
 import it.unipi.dii.aide.mircv.model.LexiconEntry;
 import it.unipi.dii.aide.mircv.model.SkipBlock;
 import java.io.IOException;
@@ -247,4 +248,64 @@ public class FileReaderUtility {
             return null;
         }
     }
+
+
+
+    /**
+     * Reads the posting list's ids from the given inverted index file, starting from offset it will read the number
+     * of docIds indicated by the given length parameter. It assumes that the file is compressed using VBE.
+     * @param randomAccessFileDocIds RandomAccessFile of the docIds block file
+     * @param offset offset starting from where to read the posting list
+     * @param length length of the bytes of the encoded posting list
+     */
+    public static ArrayList<Long> readPostingListDocIdsCompressed(RandomAccessFile randomAccessFileDocIds, long offset, int length) {
+
+        byte[] docidsByte = new byte[length];
+
+        try {
+
+            //Set the file pointer to the start of the posting list
+            randomAccessFileDocIds.seek(offset);
+
+            randomAccessFileDocIds.readFully(docidsByte, 0, length);
+
+            return Compressor.variableByteDecodeLong(docidsByte);
+
+        } catch (IOException e) {
+            System.err.println("[ReadPostingListDocIds] Exception during seek");
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Reads the posting list's frequencies from the given inverted index file, starting from offset it will read the number
+     * of docIds indicated by the given length parameter. It assumes that the file is compressed using VBE.
+     * @param randomAccessFileFreq RandomAccessFile of the frequencies file
+     * @param offset offset starting from where to read the posting list
+     * @param length length of the bytes of the encoded posting list
+     */
+    public static ArrayList<Integer> readPostingListFrequenciesCompressed(RandomAccessFile randomAccessFileFreq, long offset, int length) {
+
+        byte[] docidsByte = new byte[length];
+
+        try {
+
+            //Set the file pointer to the start of the posting list
+            randomAccessFileFreq.seek(offset);
+
+            randomAccessFileFreq.readFully(docidsByte, 0, length);
+
+            return Compressor.variableByteDecode(docidsByte);
+
+        } catch (IOException e) {
+            System.err.println("[ReadPostingListDocIds] Exception during seek");
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*TODO
+       readPostingListDocIdsCompressed
+       readPostingListFrequenciesCompressed
+    */
 }

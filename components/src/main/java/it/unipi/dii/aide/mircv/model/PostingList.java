@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.util.*;
 import static it.unipi.dii.aide.mircv.utils.Config.ENABLE_COMPRESSION;
 
+import it.unipi.dii.aide.mircv.compressor.Compressor;
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileReaderUtility;
 import static it.unipi.dii.aide.mircv.utils.Config.IS_DEBUG_MODE;
@@ -71,20 +72,20 @@ public class PostingList {
      */
     public void loadPostingList(){
         //Retrieve the docids and the frequencies
-        ArrayList<Long> docids;
-        ArrayList<Integer> frequencies;
+        ArrayList<Long> docids=new ArrayList<>();
+        ArrayList<Integer> frequencies=new ArrayList<>();
 
         //If the compression is enabled, then read the posting lists files with the compression
         if(ENABLE_COMPRESSION) {
             System.out.println("TO DO: Compression");
 
-//            docids = readPostingListDocIdsCompressed(randomAccessFileDocIds,
-//                    termInfo.getOffsetDocId() + currentSkipBlock.startDocidOffset,
-//                    currentSkipBlock.skipBlockDocidLength);
-//
-//            frequencies = readPostingListFrequenciesCompressed(randomAccessFileFrequencies,
-//                    termInfo.getOffsetFrequency() + currentSkipBlock.startFreqOffset,
-//                    currentSkipBlock.skipBlockFreqLength);
+            docids = FileReaderUtility.readPostingListDocIdsCompressed(randomAccessFileDocIds,
+                    lexiconEntry.getOffsetDocId() + this.postingListIterator.getCurrentSkipBlock().startDocidOffset,
+                    this.postingListIterator.getCurrentSkipBlock().skipBlockDocidLength);
+            frequencies = FileReaderUtility.readPostingListFrequenciesCompressed(randomAccessFileFrequencies,
+                    lexiconEntry.getOffsetFrequency() + this.postingListIterator.getCurrentSkipBlock().startFreqOffset,
+                    this.postingListIterator.getCurrentSkipBlock().skipBlockFreqLength);
+
         }else {//Read without compression
             docids = FileReaderUtility.readPostingListDocIds(randomAccessFileDocIds,
                     this.getLexiconEntry().getOffsetDocId() +

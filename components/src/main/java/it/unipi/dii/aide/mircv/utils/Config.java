@@ -40,11 +40,11 @@ public class Config {
     public static final String FREQUENCIES_BLOCK_PATH = "components/src/main/resources/tmp/invertedIndexFrequencies";
 
     //Flag to enable stemming and stopword removal
-    public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = false;
+    public static final boolean ENABLE_STEMMING_AND_STOPWORD_REMOVAL = true;
     //Flag to enable compression
-    public static final boolean ENABLE_COMPRESSION = false;
+    public static final boolean ENABLE_COMPRESSION = true;
     //Flag to enable debug mode
-    public static final boolean IS_DEBUG_MODE = false;
+    public static final boolean IS_DEBUG_MODE = true;
 
     // Threshold of memory over which the index must be flushed to disk
     public static final double PERCENTAGE = 0.7;
