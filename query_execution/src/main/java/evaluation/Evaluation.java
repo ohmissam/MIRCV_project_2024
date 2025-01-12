@@ -26,6 +26,8 @@ public class Evaluation{
 
     public static void main( String[] args )
     {
+        System.out.println("[EVALUATION] Starting evaluation!");
+
         System.out.println("[QUERY PROCESSOR] Loading the lexicon in memory...");
         lexicon.loadLexicon();
 
@@ -138,11 +140,15 @@ public class Evaluation{
                 String query = "-1\t" + tuple.getSecond();
 
                 //Parse the query
+                System.out.println("query: "+query);
                 String[] queryTerms = parseQuery(query);
+                System.out.println("queryTerms: "+Arrays.toString(queryTerms));
+
                 if (queryTerms.length == 0) {
                     System.out.println("No document found for the query. Please try another query.");
                     continue;
                 }
+
 
                 System.out.println("Query: " + query + "\t" + "Terms: " + Arrays.toString(queryTerms));
 
@@ -166,9 +172,7 @@ public class Evaluation{
                     postingLists[i] = new PostingList();
 
                     //Load in memory the posting list of the i-th query term
-                    System.out.println(queryTerms[i]);
                     LexiconEntry lexiconEntry =lexicon.getLexicon().get(queryTerms[i]);
-                    System.out.println(lexiconEntry);
                     postingLists[i].openList(lexiconEntry);
                 }
 
@@ -226,7 +230,6 @@ public class Evaluation{
             throw new RuntimeException(e);
         }
     }
-
     /**
      * Parses the query and returns the list of terms containing the query, the parsing process must be the same as the
      * one used during the indexing phase.
@@ -234,32 +237,26 @@ public class Evaluation{
      * @return the array of terms after the parsing of the query
      */
     public static String[] parseQuery(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            throw new IllegalArgumentException("Query input cannot be null or empty.");
-        }
 
-        StringTokenizer stringTokenizer = new StringTokenizer(query, "\t");
-        String text = null;
-
-        if (stringTokenizer.hasMoreTokens()) {
-            text = stringTokenizer.nextToken().toLowerCase();
-        }
-
-        String[] splittedText = DocumentPreProcessor.removePunctuation(text).split("\\s+");
-
-        if (Config.ENABLE_STEMMING_AND_STOPWORD_REMOVAL) {
-            splittedText = DocumentPreProcessor.removeStopWords(splittedText, DocumentPreProcessor.getStopWords());
-            splittedText = DocumentPreProcessor.getStems(splittedText);
-        }
-
+        //Array of terms to build the result
         ArrayList<String> results = new ArrayList<>();
-        System.out.println(query);
 
-        for (String term : splittedText) {
-            if (lexicon.getLexicon().get(term) != null) {
+        //Parse the query using the same configuration of the indexer
+        DocumentAfterPreprocessing doc = DocumentPreProcessor.processDocument(query,0);
+
+        //If no terms are returned by the parser then return null
+        if(doc == null){
+            return null;
+        }
+
+        //Remove the query terms that are not present in the lexicon
+        for(String term : doc.getTerms()){
+            if(lexicon.getLexicon().get(term) != null){
                 results.add(term);
             }
         }
+
+        //Return an array of String containing the results of the parsing process
         return results.toArray(new String[0]);
     }
 
