@@ -5,6 +5,7 @@ import it.unipi.mircv.scorer.ScorerConjunctiveAndDisjunctive;
 import it.unipi.dii.aide.mircv.model.*;
 import utils.ScorerConfig;
 
+
 public class DemoInterface {
 
     private static final Lexicon lexicon = new Lexicon();

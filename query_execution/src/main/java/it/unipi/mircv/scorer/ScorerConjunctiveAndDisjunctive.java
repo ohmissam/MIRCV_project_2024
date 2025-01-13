@@ -194,7 +194,9 @@ public class ScorerConjunctiveAndDisjunctive {
         }
 
         //print the time used to score the documents, so to generate an answer for the query
-        System.out.println("\n[SCORE DOCUMENT] Total scoring time: " + (System.currentTimeMillis() - begin) + "ms");
+        if(IS_DEBUG_MODE){
+            System.out.println("\n[SCORE DOCUMENT] Total scoring time: " + (System.currentTimeMillis() - begin) + "ms");
+        }
 
         //return the top K documents
         return getBestKDocuments(rankedDocs, BEST_K_VALUE);
@@ -361,7 +363,10 @@ public class ScorerConjunctiveAndDisjunctive {
         }
 
         //Print the time used to score the documents, so to generate an answer for the query
-        System.out.println("\n[SCORE DOCUMENT] Total scoring time: " + (System.currentTimeMillis() - begin) + "ms");
+        if(IS_DEBUG_MODE){
+            System.out.println("\n[SCORE DOCUMENT] Total scoring time: " + (System.currentTimeMillis() - begin) + "ms");
+
+        }
 
         return getBestKDocuments(rankedDocs, BEST_K_VALUE);
     }

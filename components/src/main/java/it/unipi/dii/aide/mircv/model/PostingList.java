@@ -77,8 +77,6 @@ public class PostingList {
 
         //If the compression is enabled, then read the posting lists files with the compression
         if(ENABLE_COMPRESSION) {
-            System.out.println("TO DO: Compression");
-
             docids = FileReaderUtility.readPostingListDocIdsCompressed(randomAccessFileDocIds,
                     lexiconEntry.getOffsetDocId() + this.postingListIterator.getCurrentSkipBlock().startDocidOffset,
                     this.postingListIterator.getCurrentSkipBlock().skipBlockDocidLength);
@@ -105,7 +103,6 @@ public class PostingList {
                 postingList.add(new Posting(docids.get(i), frequencies.get(i)));
             }
 
-            //TO DO: Controllare se l'iteratore SkipBlock deve essere inizializzato in questo momento, o basta l'iteratore alle posting
             //Update the iterator for the current posting list
 //                iterator = this.iterator();
             postingListIterator.setPostingIterator(postingList.iterator());
@@ -132,7 +129,7 @@ public class PostingList {
             }
             // If it's possible to move to the next skip block, then move the iterator
             if (postingListIterator.getSkipBlockIterator().hasNext()) {
-                // Debug
+//                 Debug
                 if (IS_DEBUG_MODE) {
                     System.out.println("[DEBUG] Changing the skip block iterator to next skip block");
                 }
@@ -180,7 +177,7 @@ public class PostingList {
      */
     public void openList(LexiconEntry lexiconEntry){
 
-        //Set the terminfo of the posting list
+        //Set the lexiconEntry of the posting list
         this.lexiconEntry = lexiconEntry;
 
 

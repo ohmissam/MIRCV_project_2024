@@ -181,8 +181,6 @@ public class IndexMerger {
             double tf_maxScoreBm25 = 0;
 
             if(ENABLE_COMPRESSION){
-                System.out.println("[DEBUG] Start COMPRESSION");
-
 
                 Tuple<Double, Double> maxscoreTuple = new Tuple<>(0.0,0.0);
 
@@ -240,8 +238,6 @@ public class IndexMerger {
 
                 docIdsOffset += docIdsCompressed.length;
                 frequenciesOffset += frequenciesCompressed.length;
-
-                System.out.println("[DEBUG] END COMPRESSION");
 
             }
             else{ //no compression

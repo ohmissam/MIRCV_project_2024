@@ -1,17 +1,15 @@
-package evaluation;
+package query_evaluation;
 
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.mircv.scorer.ScorerConjunctiveAndDisjunctive;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import evaluation.EvaluationConfig.*;
 import utils.ScorerConfig;
 import it.unipi.dii.aide.mircv.model.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.StringTokenizer;
 
 /**
  * Main class for the query evaluation module, provide the methods to load a batch of queries used to generate a file
@@ -37,21 +35,29 @@ public class Evaluation{
         //disj + bm25
         ScorerConfig.setUseConjunctiveScorer(false);
         ScorerConfig.setUseBm25(true);
+        System.out.println("[EVALUATION] Disjunctive + BM25");
+
         evaluateQueries(getQueries(), documentIndex, lexicon, 0);
 
         //conj + bm25
         ScorerConfig.setUseConjunctiveScorer(true);
         ScorerConfig.setUseBm25(true);
+        System.out.println("[EVALUATION] Conjunctive + BM25");
+
         evaluateQueries(getQueries(), documentIndex, lexicon, 1);
 
         //conj + tfidf
         ScorerConfig.setUseConjunctiveScorer(true);
         ScorerConfig.setUseBm25(false);
+        System.out.println("[EVALUATION] Conjunctive + tfidf");
+
         evaluateQueries(getQueries(), documentIndex, lexicon, 2);
 
         //disj + tfidf
         ScorerConfig.setUseConjunctiveScorer(false);
         ScorerConfig.setUseBm25(false);
+        System.out.println("[EVALUATION] Disjunctive + tfidf");
+
         evaluateQueries(getQueries(), documentIndex, lexicon, 3);
     }
 
@@ -107,6 +113,8 @@ public class Evaluation{
      * @param lexicon lexicon containing the terms information
      */
     private static void evaluateQueries(ArrayList<Tuple<Long,String>> queries, DocumentIndex documentIndex, Lexicon lexicon, int k){
+        Config.setIsDebugMode(false);
+        ScorerConfig.setDebugMode(false);
 
         //Object used to build the lexicon line into a string
         StringBuilder stringBuilder;
@@ -117,16 +125,16 @@ public class Evaluation{
         try {
             String fileName = EvaluationConfig.RESULTS_PATH;
             if(k == 0){
-                fileName+= "_disj_bm25.txt";
+                fileName+= "_CS_disj_bm25.txt";
             }
             else if(k == 1){
-                fileName+= "_conj_bm25.txt";
+                fileName+= "_CS_conj_bm25.txt";
             }
             else if(k == 2){
-                fileName+= "_conj_tfidf.txt";
+                fileName+= "_CS_conj_tfidf.txt";
             }
             else{
-                fileName+= "_disj_tfidf.txt";
+                fileName+= "_CS_disj_tfidf.txt";
             }
 
             bufferedWriter = new BufferedWriter(new FileWriter(fileName,false));
@@ -140,9 +148,7 @@ public class Evaluation{
                 String query = "-1\t" + tuple.getSecond();
 
                 //Parse the query
-                System.out.println("query: "+query);
                 String[] queryTerms = parseQuery(query);
-                System.out.println("queryTerms: "+Arrays.toString(queryTerms));
 
                 if (queryTerms.length == 0) {
                     System.out.println("No document found for the query. Please try another query.");
@@ -150,13 +156,11 @@ public class Evaluation{
                 }
 
 
-                System.out.println("Query: " + query + "\t" + "Terms: " + Arrays.toString(queryTerms));
-
 
                 //Remove the duplicates
                 queryTerms = Arrays.stream(queryTerms).distinct().toArray(String[]::new);
 
-                System.out.println("Query: " + query + "\t" + "Terms: " + Arrays.toString(queryTerms));
+//                System.out.println("Query: " + query + "\t" + "Terms: " + Arrays.toString(queryTerms));
 
                 //Load the posting list of the terms of the query
                 PostingList[] postingLists = new PostingList[queryTerms.length];
@@ -179,12 +183,12 @@ public class Evaluation{
                 //Array to hold the results of the query
                 ArrayList<Tuple<Long, Double>> result;
 
-                //Score the collection
 
                 //Retrieve the time at the beginning of the computation
                 long begin = System.currentTimeMillis();
 
-                ScorerConfig.setDebugMode(false);
+
+                //Score all the queries
                 if(ScorerConfig.USE_CONJUNCTIVE_SCORER){
                     result = ScorerConjunctiveAndDisjunctive.scoreCollectionConjunctive(postingLists,documentIndex);
                 }else {

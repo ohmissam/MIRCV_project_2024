@@ -1,6 +1,4 @@
-package evaluation;
-
-
+package query_evaluation;
 
 public class EvaluationConfig {
     // Path to the file containing the queries

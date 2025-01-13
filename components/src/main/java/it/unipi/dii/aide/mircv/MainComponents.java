@@ -4,6 +4,7 @@ import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.merger.IndexMerger;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
 import it.unipi.dii.aide.mircv.model.DocumentIndexEntry;
+import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileWriterUtility;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -26,9 +27,13 @@ public class MainComponents {
         System.out.println("[MAIN] Starting the extraction of the dataset...");
         System.out.println("[MAIN] Stemming and stopword removal are " + (ENABLE_STEMMING_AND_STOPWORD_REMOVAL ? "ENABLED" : "DISABLED"));
 
+        // Track the start time of the merging phase
+        long processBegin = System.nanoTime();
+
 
         // Step 1: Extract the dataset and process each document
-        processDocuments(SAMPLED_COLLECTION_PATH);
+        processDocuments(TAR_COLLECTION_PATH);
+        long blockProcessEnd = System.nanoTime();
 
         // Step 2: Start the block merging phase
         System.out.println("[MAIN] Starting the merging of the blocks...");
@@ -37,10 +42,14 @@ public class MainComponents {
 
         // Track the start time of the merging phase
         long mergeBegin = System.nanoTime();
+
         // Perform the merging operation
         IndexMerger.merge();
-        // Track and display the time taken for the merging phase
+        // Track and display the times taken
+        System.out.printf("[MAIN] Block indexing completed in %.2fs%n", (blockProcessEnd - processBegin) / 1_000_000_000.0);
         System.out.printf("[MAIN] Merging completed in %.2fs%n", (System.nanoTime() - mergeBegin) / 1_000_000_000.0);
+        System.out.printf("[MAIN] Process completed in %.2fs%n", (System.nanoTime() - processBegin) / 1_000_000_000.0);
+
     }
 
     /**

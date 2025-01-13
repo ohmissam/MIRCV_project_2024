@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>components</module>
-        <module>cli</module>
+        <module>evaluation</module>
+
         <module>query_execution</module>
     </modules>
 
