@@ -8,13 +8,7 @@ import java.util.PriorityQueue;
 
 public class ScorerConjunctiveAndDisjunctive {
 
-    /**
-     * Implementation of the algorithm Document-At-a-Time, it iterates over all the posting lists accessing and scoring
-     * the document with the minimum document id in the conjunctive query case.
-     * @param postingLists Array of posting lists.
-     * @param documentIndex document index containing the information of the documents.
-     * @return an ordered array of tuples containing the document id and the score associated with the document.
-     */
+
     public static ArrayList<Tuple<Long,Double>> scoreCollectionConjunctive(PostingList[] postingLists, DocumentIndex documentIndex) {
         if(IS_DEBUG_MODE){
             System.out.println("[DEBUG] Initial posting lists: \n"+Arrays.toString(postingLists));
@@ -200,13 +194,7 @@ public class ScorerConjunctiveAndDisjunctive {
         return getBestKDocuments(rankedDocs, BEST_K_VALUE);
     }
 
-    /**
-     * Implementation of the algorithm Document-At-a-Time, it iterates over all the posting lists accessing and scoring
-     * the document with the minimum document id in the disjunctive query case.
-     * @param postingLists Array of posting lists.
-     * @param documentIndex document index containing the information of the documents.
-     * @return an ordered array of tuples containing the document id and the score associated with the document.
-     */
+
     public static ArrayList<Tuple<Long,Double>> scoreCollectionDisjunctive(PostingList[] postingLists, DocumentIndex documentIndex) {
 
         RankedDocs rankedDocs = new RankedDocs(BEST_K_VALUE);
