@@ -13,16 +13,18 @@ The project consists of 3 packages:
 Within **components**, we manage the construction of the necessary data structures.  
 **Maincomponents** is the main class that creates the inverted index, the lexicon, and document index.  
 The **Config** class contains final variables that allow us to enable stemming andstopword removal, compression, and debug mode. 
-It also contains the path to the collection file and stopword file. To start with the creation of the data structures, these files must be added to the **data** directory.
+It also specifies the paths to the collection file and the stopword file. To begin creating the data structures, these files must be placed in the **data** directory.
+After the indexing, the files created wil be saved in the same directory.
 
 ## QUERY EXECUTION
-**DemoInterface**
-This module implement the scoring algorithms.
+The **DemoInterface** class provides a user-friendly interface for submitting search queries and retrieving a ranked list of the top 20 relevant documents. 
+By typing '!settings' in the command line, users can adjust the scoring function, query type, and debug mode.
 
 ## EVALUATION
 In the **evaluation** package, we have the **EvaluationConfig** class, where we can configure the paths for the tests and results. 
 The class **Evaluation** performs tests on 200 queries and writes the results in a format suitable for the trec_eval tool.
 It processes queries using the BM25 and TF-IDF scoring algorithms in both conjunctive and disjunctive modes.
+
 
 
 
