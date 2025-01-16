@@ -22,3 +22,18 @@ The other class, `Evaluation`, uses the parameters set on the `invertedIndex` to
 ## QUERY EXECUTION
 
 Implementation of scoring algorithms.
+
+
+Example of UI:
+
+--- Main Menu ---
+Type your query or use the following commands:
+- Type '!settings' to configure settings
+- Type '!exit' to quit
+Enter your query or command: !settings
+
+--- Settings Menu ---
+1. Toggle USE_BM25 (Current: false)
+2. Toggle USE_CONJUNCTIVE_SCORER (Current: true)
+3. Toggle IS_DEBUG_MODE (Current: true)
+4. Back to Main Menu
