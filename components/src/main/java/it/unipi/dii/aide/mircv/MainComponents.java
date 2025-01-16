@@ -4,7 +4,6 @@ import it.unipi.dii.aide.mircv.builder.InvertedIndexBuilder;
 import it.unipi.dii.aide.mircv.merger.IndexMerger;
 import it.unipi.dii.aide.mircv.model.DocumentAfterPreprocessing;
 import it.unipi.dii.aide.mircv.model.DocumentIndexEntry;
-import it.unipi.dii.aide.mircv.utils.Config;
 import it.unipi.dii.aide.mircv.utils.FileWriterUtility;
 import it.unipi.dii.aide.mircv.preProcessing.DocumentPreProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
