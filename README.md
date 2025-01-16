@@ -1,6 +1,6 @@
 # MIRCV PROJECT
 
-A project for the Multimedia Information Retrieval and Computer Vision course at the University of Pisa (A.Y. 2022/2023), carried out by Elisa De Filomeno, Massimo Merla, and Riccardo Orrù.
+A project for the Multimedia Information Retrieval and Computer Vision course at the University of Pisa (A.Y. 2022/2023), carried out by Elisa De Filomeno, Massimo Merla and Riccardo Orrù.
 
 
 This project aims to develop a search engine capable of performing text retrieval tasks on a large-scale dataset containing 8.8 million documents. 
