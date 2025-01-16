@@ -3,25 +3,27 @@
 A project for the Multimedia Information Retrieval and Computer Vision course at the University of Pisa (A.Y. 2022/2023), carried out by Elisa De Filomeno, Massimo Merla, and Riccardo Orrù.
 
 ## PROJECT
-
 The project consists of 3 packages:
 - components
 - evaluation
 - query execution
 
+
 ## COMPONENTS
-Within **components**, we find the construction of the necessary data structures.  
-**Maincomponents** is the main class that creates the inverted index and the lexicon, and it also shows the percentage of memory used.  
-In the **config** class, we find the final variables where we can set the enabling of stemming and stopwords, compression, and debug mode.
-
-
-## EVALUATION
-In the `evaluation` package, we have the `EvaluationConfig` class, where we can configure the paths for the tests and results. 
-The other class, `Evaluation`, uses the parameters set on the `invertedIndex` to execute the BM25 and TFIDF scoring algorithms in both Conjunctive and Disjunctive modes.
+Within **components**, we manage the construction of the necessary data structures.  
+**Maincomponents** is the main class that creates the inverted index, the lexicon, and document index.  
+The **Config** class contains final variables that allow us to enable stemming andstopword removal, compression, and debug mode. 
+It also contains the path to the collection file and stopword file. To start with the creation of the data structures, these files must be added to the **data** directory.
 
 ## QUERY EXECUTION
+**DemoInterface**
+This module implement the scoring algorithms.
 
-Implementation of scoring algorithms.
+## EVALUATION
+In the **evaluation** package, we have the **EvaluationConfig** class, where we can configure the paths for the tests and results. 
+The class **Evaluation** performs tests on 200 queries and writes the results in a format suitable for the trec_eval tool.
+It processes queries using the BM25 and TF-IDF scoring algorithms in both conjunctive and disjunctive modes.
+
 
 
 Example of UI:
