@@ -14,8 +14,8 @@ The project consists of 3 packages:
 
 ## COMPONENTS
 Within **components**, we manage the construction of the necessary data structures.  
-**Maincomponents** is the main class that creates the inverted index, the lexicon, and document index.  
-The **Config** class contains final variables that allow us to enable stemming andstopword removal, compression, and debug mode. 
+**Maincomponents** is the main class that creates the inverted index, the lexicon and document index.  
+The **Config** class contains final variables that allow us to enable stemming and stopword removal, compression, and debug mode. 
 It also specifies the paths to the collection file and the stopword file. To begin creating the data structures, these files must be placed in the **data** directory.
 After the indexing, the files created wil be saved in the same directory.
 
